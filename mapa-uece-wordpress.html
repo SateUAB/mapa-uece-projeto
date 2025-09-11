@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa UAB/UECE - Campi no Ceará</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .header {
+            background-color: #16a34a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            display: flex;
+            height: 600px;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-left: 1px solid #d1d5db;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            color: #15803d;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .polo-selected {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .polo-selected h3 {
+            color: #166534;
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+        }
+        
+        .polo-selected .courses-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .polo-selected ul {
+            list-style-type: disc;
+            list-style-position: inside;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .polo-selected li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .instruction {
+            background-color: #dbeafe;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #1d4ed8;
+        }
+        
+        .accordion {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .accordion-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .accordion-header {
+            background-color: #f9fafb;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .accordion-header:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .accordion-header.active {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+        
+        .accordion-title {
+            font-weight: 600;
+            color: #15803d;
+            font-size: 0.875rem;
+        }
+        
+        .accordion-count {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.2s;
+            color: #6b7280;
+        }
+        
+        .accordion-icon.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: white;
+        }
+        
+        .accordion-content.expanded {
+            max-height: 500px;
+        }
+        
+        .accordion-body {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .course-list {
+            list-style-type: disc;
+            list-style-position: inside;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .course-list li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .leaflet-popup-content {
+            margin: 8px 12px;
+        }
+        
+        .popup-title {
+            color: #15803d;
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .popup-courses-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .popup-courses {
+            list-style-type: disc;
+            list-style-position: inside;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .popup-courses li {
+            margin-bottom: 0.125rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .map-container {
+                height: 400px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #d1d5db;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mapa UAB/UECE</h1>
+        <p>Polos onde a UECE tem cursos no Ceará</p>
+    </div>
+    
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="sidebar">
+            <h2>Polos UECE</h2>
+            
+            <div id="polo-list" class="accordion">
+                <!-- Acordeão de polos será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Dados dos polos da UECE
+        const polosUECE = [
+            { nome: 'AMONTADA', lat: -3.3628, lng: -39.8267, cursos: ['Geografia', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'ARACOIABA', lat: -4.3708, lng: -38.8167, cursos: ['Educação Física', 'História'] },
+            { nome: 'BEBERIBE', lat: -4.1797, lng: -38.1306, cursos: ['Ciências Biológicas', 'Ciências Contábeis', 'Computação', 'Educação Física', 'História', 'Pedagogia', 'Química', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'BREJO SANTO', lat: -7.4889, lng: -38.9833, cursos: ['Esp. Controladoria Pública'] },
+            { nome: 'CAMOCIM', lat: -2.9019, lng: -40.8406, cursos: ['Química'] },
+            { nome: 'CAMPOS SALES', lat: -7.0736, lng: -40.3764, cursos: ['Esp. Gestão Pública'] },
+            { nome: 'CANINDÉ', lat: -4.3556, lng: -39.3125, cursos: ['História', 'Química', 'Esp. Gestão Pública'] },
+            { nome: 'CAUCAIA - ARATURI', lat: -3.7361, lng: -38.6531, cursos: ['Administração Pública', 'Pedagogia'] },
+            { nome: 'CAUCAIA - ITAMBÉ', lat: -3.7361, lng: -38.6531, cursos: ['Esp. Ensino de Matemática'] },
+            { nome: 'CAUCAIA - NOVO PABUSSU', lat: -3.7361, lng: -38.6531, cursos: ['Ciências Biológicas', 'Computação', 'Química', 'Esp. Gestão Pública'] },
+            { nome: 'FORTALEZA', lat: -3.7319, lng: -38.5267, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Educação Física', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
+            { nome: 'ICÓ', lat: -6.4000, lng: -38.8667, cursos: ['Geografia', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'IGUATU', lat: -6.3597, lng: -39.2986, cursos: ['Administração Pública', 'Ciências Contábeis', 'Computação', 'Geografia', 'Esp. Ciências é 10', 'Esp. Controladoria Pública', 'Esp. Gestão Pública'] },
+            { nome: 'ITAPIPOCA', lat: -3.4944, lng: -39.5786, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
+            { nome: 'ITAREMA', lat: -2.9244, lng: -39.9167, cursos: ['História', 'Esp. Ensino de Matemática'] },
+            { nome: 'IPUEIRAS', lat: -4.2389, lng: -40.7167, cursos: ['Esp. Controladoria Pública'] },
+            { nome: 'JAGUARIBE', lat: -5.8903, lng: -38.6222, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Ciências Contábeis', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática'] },
+            { nome: 'LAVRAS DA MANGABEIRA', lat: -6.7556, lng: -38.9667, cursos: ['Esp. Gestão Pública'] },
+            { nome: 'LIMOEIRO DO NORTE', lat: -5.1411, lng: -38.0978, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'MADALENA', lat: -4.8333, lng: -39.5500, cursos: ['Esp. Ciências é 10', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'MARACANAÚ', lat: -3.8767, lng: -38.6256, cursos: ['Administração Pública', 'Artes Visuais', 'Pedagogia', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'MARANGUAPE', lat: -3.8889, lng: -38.6833, cursos: ['Administração Pública', 'Ciências Biológicas', 'Educação Física', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública'] },
+            { nome: 'MAURITI', lat: -7.3833, lng: -38.7667, cursos: ['Esp. Gestão Pública Municipal'] },
+            { nome: 'MERUOCA', lat: -3.5333, lng: -40.4500, cursos: ['Esp. Gestão Pública Municipal'] },
+            { nome: 'ORÓS', lat: -6.2417, lng: -39.0167, cursos: ['Computação', 'Química'] },
+            { nome: 'QUITERIANÓPOLIS', lat: -5.8333, lng: -40.6833, cursos: ['Geografia'] },
+            { nome: 'QUIXADÁ', lat: -4.9714, lng: -39.0178, cursos: ['Artes Visuais', 'Educação Física', 'Esp. Ciências é 10', 'Esp. Ensino de Matemática'] },
+            { nome: 'QUIXARAMOBIM', lat: -5.1975, lng: -39.2906, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Contábeis', 'Computação', 'Pedagogia', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública'] },
+            { nome: 'RUSSAS', lat: -4.9394, lng: -37.9775, cursos: ['Administração Pública', 'Ciências Contábeis'] },
+            { nome: 'SANTA QUITÉRIA', lat: -4.3333, lng: -40.1500, cursos: ['Geografia'] },
+            { nome: 'SÃO GONÇALO DO AMARANTE', lat: -3.6083, lng: -38.9667, cursos: ['Geografia', 'História'] },
+            { nome: 'SOBRAL', lat: -3.6861, lng: -40.3500, cursos: ['Esp. Auditoria e Controle', 'Esp. Controladoria Pública'] },
+            { nome: 'TAUÁ', lat: -6.0000, lng: -40.2917, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10', 'Esp. Gestão Pública Municipal'] }
+        ];
+        
+        let poloSelecionado = null;
+        let map;
+        let markers = [];
+        
+        // Inicializar o mapa
+        function initMap() {
+            map = L.map('map').setView([-5.0, -39.5], 7);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Adicionar marcadores
+            polosUECE.forEach((polo, index) => {
+                const marker = L.marker([polo.lat, polo.lng]).addTo(map);
+                
+                // Criar conteúdo do popup
+                const popupContent = `
+                    <div>
+                        <div class="popup-title">${polo.nome}</div>
+                        <div class="popup-courses-label">Cursos oferecidos:</div>
+                        <ul class="popup-courses">
+                            ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                
+                marker.on('click', () => {
+                    selecionarPolo(polo);
+                });
+                
+                markers.push(marker);
+            });
+        }
+        
+        // Selecionar um polo
+        function selecionarPolo(polo) {
+            poloSelecionado = polo;
+            atualizarListaPolos();
+            
+            // Rolar para o polo selecionado na lista
+            setTimeout(() => {
+                const poloElement = document.querySelector('.accordion-item .accordion-header.active');
+                if (poloElement) {
+                    poloElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }, 100);
+        }
+        
+        // Atualizar lista de polos como acordeão
+        function atualizarListaPolos() {
+            const poloList = document.getElementById('polo-list');
+            
+            poloList.innerHTML = polosUECE.map(polo => `
+                <div class="accordion-item">
+                    <div class="accordion-header ${poloSelecionado?.nome === polo.nome ? 'active' : ''}" 
+                         onclick="toggleAccordion('${polo.nome}')">
+                        <div>
+                            <div class="accordion-title">${polo.nome}</div>
+                            <div class="accordion-count">${polo.cursos.length} curso(s)</div>
+                        </div>
+                        <div class="accordion-icon ${poloSelecionado?.nome === polo.nome ? 'rotated' : ''}">▼</div>
+                    </div>
+                    <div class="accordion-content ${poloSelecionado?.nome === polo.nome ? 'expanded' : ''}" 
+                         id="content-${polo.nome.replace(/\s+/g, '-')}">
+                        <div class="accordion-body">
+                            <p style="font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Cursos oferecidos:</p>
+                            <ul class="course-list">
+                                ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Alternar acordeão
+        function toggleAccordion(poloNome) {
+            const polo = polosUECE.find(p => p.nome === poloNome);
+            if (polo) {
+                // Se já está selecionado, deselecionar
+                if (poloSelecionado?.nome === poloNome) {
+                    poloSelecionado = null;
+                } else {
+                    poloSelecionado = polo;
+                }
+                atualizarListaPolos();
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            atualizarListaPolos();
+        });
+    </script>
+</body>
+</html>
+

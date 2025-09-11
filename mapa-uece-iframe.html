@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa UAB/UECE - Campi no Ceará</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        
+        .leaflet-popup-content {
+            margin: 8px 12px;
+            min-width: 200px;
+        }
+        
+        .popup-title {
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .popup-courses-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #374151;
+        }
+        
+        .popup-courses {
+            list-style-type: disc;
+            list-style-position: inside;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            color: #6b7280;
+        }
+        
+        .popup-courses li {
+            margin-bottom: 0.125rem;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+        
+        .leaflet-popup-tip {
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Dados dos polos da UECE
+        const polosUECE = [
+            { nome: 'AMONTADA', lat: -3.3628, lng: -39.8267, cursos: ['Geografia', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'ARACOIABA', lat: -4.3708, lng: -38.8167, cursos: ['Educação Física', 'História'] },
+            { nome: 'BEBERIBE', lat: -4.1797, lng: -38.1306, cursos: ['Ciências Biológicas', 'Ciências Contábeis', 'Computação', 'Educação Física', 'História', 'Pedagogia', 'Química', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'BREJO SANTO', lat: -7.4889, lng: -38.9833, cursos: ['Esp. Controladoria Pública'] },
+            { nome: 'CAMOCIM', lat: -2.9019, lng: -40.8406, cursos: ['Química'] },
+            { nome: 'CAMPOS SALES', lat: -7.0736, lng: -40.3764, cursos: ['Esp. Gestão Pública'] },
+            { nome: 'CANINDÉ', lat: -4.3556, lng: -39.3125, cursos: ['História', 'Química', 'Esp. Gestão Pública'] },
+            { nome: 'CAUCAIA - ARATURI', lat: -3.7361, lng: -38.6531, cursos: ['Administração Pública', 'Pedagogia'] },
+            { nome: 'CAUCAIA - ITAMBÉ', lat: -3.7361, lng: -38.6531, cursos: ['Esp. Ensino de Matemática'] },
+            { nome: 'CAUCAIA - NOVO PABUSSU', lat: -3.7361, lng: -38.6531, cursos: ['Ciências Biológicas', 'Computação', 'Química', 'Esp. Gestão Pública'] },
+            { nome: 'FORTALEZA', lat: -3.7319, lng: -38.5267, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Educação Física', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
+            { nome: 'ICÓ', lat: -6.4000, lng: -38.8667, cursos: ['Geografia', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'IGUATU', lat: -6.3597, lng: -39.2986, cursos: ['Administração Pública', 'Ciências Contábeis', 'Computação', 'Geografia', 'Esp. Ciências é 10', 'Esp. Controladoria Pública', 'Esp. Gestão Pública'] },
+            { nome: 'ITAPIPOCA', lat: -3.4944, lng: -39.5786, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
+            { nome: 'ITAREMA', lat: -2.9244, lng: -39.9167, cursos: ['História', 'Esp. Ensino de Matemática'] },
+            { nome: 'IPUEIRAS', lat: -4.2389, lng: -40.7167, cursos: ['Esp. Controladoria Pública'] },
+            { nome: 'JAGUARIBE', lat: -5.8903, lng: -38.6222, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Ciências Contábeis', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática'] },
+            { nome: 'LAVRAS DA MANGABEIRA', lat: -6.7556, lng: -38.9667, cursos: ['Esp. Gestão Pública'] },
+            { nome: 'LIMOEIRO DO NORTE', lat: -5.1411, lng: -38.0978, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Gestão Pública Municipal'] },
+            { nome: 'MADALENA', lat: -4.8333, lng: -39.5500, cursos: ['Esp. Ciências é 10', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'MARACANAÚ', lat: -3.8767, lng: -38.6256, cursos: ['Administração Pública', 'Artes Visuais', 'Pedagogia', 'Esp. Gestão Pedagógica da Escola Básica'] },
+            { nome: 'MARANGUAPE', lat: -3.8889, lng: -38.6833, cursos: ['Administração Pública', 'Ciências Biológicas', 'Educação Física', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública'] },
+            { nome: 'MAURITI', lat: -7.3833, lng: -38.7667, cursos: ['Esp. Gestão Pública Municipal'] },
+            { nome: 'MERUOCA', lat: -3.5333, lng: -40.4500, cursos: ['Esp. Gestão Pública Municipal'] },
+            { nome: 'ORÓS', lat: -6.2417, lng: -39.0167, cursos: ['Computação', 'Química'] },
+            { nome: 'QUITERIANÓPOLIS', lat: -5.8333, lng: -40.6833, cursos: ['Geografia'] },
+            { nome: 'QUIXADÁ', lat: -4.9714, lng: -39.0178, cursos: ['Artes Visuais', 'Educação Física', 'Esp. Ciências é 10', 'Esp. Ensino de Matemática'] },
+            { nome: 'QUIXARAMOBIM', lat: -5.1975, lng: -39.2906, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Contábeis', 'Computação', 'Pedagogia', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública'] },
+            { nome: 'RUSSAS', lat: -4.9394, lng: -37.9775, cursos: ['Administração Pública', 'Ciências Contábeis'] },
+            { nome: 'SANTA QUITÉRIA', lat: -4.3333, lng: -40.1500, cursos: ['Geografia'] },
+            { nome: 'SÃO GONÇALO DO AMARANTE', lat: -3.6083, lng: -38.9667, cursos: ['Geografia', 'História'] },
+            { nome: 'SOBRAL', lat: -3.6861, lng: -40.3500, cursos: ['Esp. Auditoria e Controle', 'Esp. Controladoria Pública'] },
+            { nome: 'TAUÁ', lat: -6.0000, lng: -40.2917, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10', 'Esp. Gestão Pública Municipal'] }
+        ];
+        
+        // Inicializar o mapa
+        function initMap() {
+            const map = L.map('map').setView([-5.0, -39.5], 7);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Adicionar marcadores
+            polosUECE.forEach((polo) => {
+                const marker = L.marker([polo.lat, polo.lng]).addTo(map);
+                
+                // Criar conteúdo do popup
+                const popupContent = `
+                    <div>
+                        <div class="popup-title">${polo.nome}</div>
+                        <div class="popup-courses-label">Cursos oferecidos:</div>
+                        <ul class="popup-courses">
+                            ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'custom-popup'
+                });
+            });
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+</body>
+</html>
+
