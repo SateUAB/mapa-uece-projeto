@@ -7,34 +7,66 @@
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --primary-color: #16a34a;
+            --primary-dark: #14532d;
+            --primary-light: #dcfce7;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border-color: #e5e7eb;
+            --background-color: #f9fafb;
+            --white: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text-dark);
+            overflow: hidden;
         }
         
         .header {
-            background-color: #16a34a;
-            color: white;
-            padding: 1rem;
+            background-image: linear-gradient(45deg, #16a34a, #15803d);
+            color: var(--white);
+            padding: 1rem 1.5rem;
             text-align: center;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            z-index: 1000;
+            position: relative;
         }
         
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
         
         .container {
             display: flex;
-            height: 600px;
+            height: calc(100vh - 82px);
+            background-color: var(--white);
         }
         
         .map-container {
@@ -45,186 +77,258 @@
         #map {
             height: 100%;
             width: 100%;
+            background-color: #f0f0f0;
         }
         
         .sidebar {
-            width: 320px;
-            background: white;
-            border-left: 1px solid #d1d5db;
-            padding: 1rem;
-            overflow-y: auto;
+            width: 350px;
+            background: var(--white);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .sidebar h2 {
-            color: #15803d;
+        .sidebar-header h2 {
+            color: var(--primary-dark);
             font-size: 1.25rem;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 1rem;
         }
-        
-        .polo-selected {
-            background-color: #dcfce7;
-            border: 1px solid #bbf7d0;
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-container::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
             border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
-        .polo-selected h3 {
-            color: #166534;
-            font-size: 1.125rem;
-            font-weight: bold;
-            margin-bottom: 0.75rem;
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
         }
-        
-        .polo-selected .courses-label {
-            color: #374151;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+
+        .sidebar-content {
+            overflow-y: auto;
+            flex-grow: 1;
         }
-        
-        .polo-selected ul {
-            list-style-type: disc;
-            list-style-position: inside;
-            color: #6b7280;
-            font-size: 0.875rem;
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 8px;
         }
-        
-        .polo-selected li {
-            margin-bottom: 0.25rem;
+        .sidebar-content::-webkit-scrollbar-track {
+            background: var(--background-color);
         }
-        
-        .instruction {
-            background-color: #dbeafe;
-            border: 1px solid #bfdbfe;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            color: #1d4ed8;
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
         }
-        
-        .accordion {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
         }
-        
+
         .accordion-item {
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s ease-out forwards;
         }
         
-        .accordion-item:last-child {
-            border-bottom: none;
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .accordion-header {
-            background-color: #f9fafb;
-            padding: 0.75rem 1rem;
+            background-color: var(--white);
+            padding: 1rem 1.5rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease-out;
         }
         
         .accordion-header:hover {
-            background-color: #f3f4f6;
+            background-color: var(--background-color);
+            transform: translateX(4px);
         }
         
-        .accordion-header.active {
-            background-color: #dcfce7;
-            color: #15803d;
+        .accordion-item.active .accordion-header {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
         }
         
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
         .accordion-title {
             font-weight: 600;
-            color: #15803d;
-            font-size: 0.875rem;
+            color: var(--text-dark);
+            font-size: 0.9rem;
         }
-        
+
         .accordion-count {
-            color: #6b7280;
             font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: color 0.2s ease-out;
         }
         
+        .accordion-item.active .accordion-title {
+            color: var(--primary-dark);
+        }
+
+        .accordion-item.active .accordion-count {
+            color: var(--primary-dark);
+        }
+
         .accordion-icon {
-            transition: transform 0.2s;
-            color: #6b7280;
+            transition: transform 0.3s ease;
+            color: var(--text-light);
+            width: 16px;
+            height: 16px;
         }
         
-        .accordion-icon.rotated {
+        .accordion-item.active .accordion-icon {
             transform: rotate(180deg);
+            color: var(--primary-dark);
         }
         
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background-color: white;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            background-color: var(--background-color);
         }
         
-        .accordion-content.expanded {
-            max-height: 500px;
+        .accordion-item.active .accordion-content {
+            padding-bottom: 1rem;
         }
-        
+
         .accordion-body {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
+            padding: 0 1.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
         }
         
         .course-list {
-            list-style-type: disc;
-            list-style-position: inside;
-            color: #6b7280;
-            font-size: 0.875rem;
+            list-style-type: none;
+            padding-left: 0;
         }
-        
+
         .course-list li {
-            margin-bottom: 0.25rem;
-        }
-        
-        .leaflet-popup-content {
-            margin: 8px 12px;
-        }
-        
-        .popup-title {
-            color: #15803d;
-            font-weight: bold;
-            font-size: 1.125rem;
             margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5em;
+            line-height: 1.4;
+            opacity: 0;
+            animation: fadeIn-up 0.5s ease-out forwards;
         }
         
-        .popup-courses-label {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+        .accordion-item.active .course-list li {
+             animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .course-list li::before {
+            content: '';
+            background-color: var(--primary-color);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            top: 0.4em;
         }
         
-        .popup-courses {
-            list-style-type: disc;
-            list-style-position: inside;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .leaflet-popup-content { margin: 1rem; font-size: 0.9rem; }
+        .popup-title { color: var(--primary-dark); font-weight: 700; font-size: 1.125rem; margin-bottom: 0.75rem; }
+        .popup-courses-label { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark); }
+        .popup-courses { list-style-type: none; padding-left: 0; font-size: 0.875rem; margin-top: 0.25rem; }
+        .popup-courses li { margin-bottom: 0.25rem; position: relative; padding-left: 1.5em; }
+        .popup-courses li::before { content: ''; background-color: var(--primary-color); width: 5px; height: 5px; border-radius: 50%; display: inline-block; position: absolute; left: 0; top: 0.4em; }
+        .leaflet-popup-close-button { padding: 8px 8px 0 0 !important; color: var(--text-light) !important; }
+
+        /* Custom Marker Styles */
+        .custom-marker {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            background: var(--primary-color);
+            position: absolute;
+            transform: rotate(-45deg);
+            border: 2px solid var(--white);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-out;
+        }
+        .custom-marker::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--white);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .pulsing-marker .marker-pin {
+            animation: pulse 1.5s infinite;
+            transform: rotate(-45deg) scale(1.1);
         }
         
-        .popup-courses li {
-            margin-bottom: 0.125rem;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
         
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .map-container {
-                height: 400px;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid #d1d5db;
-            }
+            body { overflow: auto; }
+            .container { flex-direction: column; height: auto; }
+            .map-container { height: 50vh; min-height: 300px; }
+            .sidebar { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border-color); }
         }
     </style>
 </head>
@@ -240,10 +344,16 @@
         </div>
         
         <div class="sidebar">
-            <h2>Polos UECE</h2>
-            
-            <div id="polo-list" class="accordion">
-                <!-- Acordeão de polos será preenchido via JavaScript -->
+            <div class="sidebar-header">
+                <h2>Polos UECE</h2>
+                <div class="search-container">
+                     <input type="text" id="search-input" placeholder="Buscar polo...">
+                </div>
+            </div>
+            <div class="sidebar-content">
+                <div id="polo-list" class="accordion">
+                    <!-- Acordeão de polos será preenchido via JavaScript -->
+                </div>
             </div>
         </div>
     </div>
@@ -272,7 +382,7 @@
         "lng": -38.39,
         "cursos": [
             "ALFABETIZAÇÃO E MULTILETRAMENTOS",
-            "COMPUTACAO",
+            "COMPUTAÇÃO",
             "CULTURA OCEÂNICA E SUSTENTABILIDADE",
             "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
             "TECNÓLOGO EM TURISMO COMUNITÁRIO"
@@ -347,7 +457,7 @@
         "lat": -2.9,
         "lng": -40.84,
         "cursos": [
-            "CIENCIAS BIOLOGICAS",
+            "CIÊNCIAS BIOLÓGICAS",
             "CULTURA OCEÂNICA E SUSTENTABILIDADE",
             "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
             "QUÍMICA",
@@ -379,7 +489,7 @@
         "lat": -4.13,
         "lng": -38.24,
         "cursos": [
-            "HISTORIA",
+            "HISTÓRIA",
             "LETRAS/LITERATURA",
             "PEDAGOGIA"
         ]
@@ -397,7 +507,7 @@
         "lat": -3.7319255,
         "lng": -38.6524174,
         "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "GESTÃO PÚBLICA MUNICIPAL", "LETRAS/PORTUGUES"
+            "ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "GESTÃO PÚBLICA MUNICIPAL", "LETRAS/PORTUGUÊS"
         ]
     },
     {
@@ -449,7 +559,7 @@
         "cursos": [
             "CONTROLADORIA PÚBLICA",
             "GEOGRAFIA",
-            "HISTORIA"
+            "HISTÓRIA"
         ]
     },
     {
@@ -471,7 +581,7 @@
             "COMPUTAÇÃO",
             "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
             "GEOGRAFIA",
-            "HISTORIA",
+            "HISTÓRIA",
             "LETRAS/LITERATURA",
             "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
         ]
@@ -511,8 +621,8 @@
             "AUDITORIA E CONTROLE INTERNO",
             "CIÊNCIAS BIOLÓGICAS",
             "CIÊNCIAS CONTÁBEIS",
-            "COMPUTACAO",
-            "LETRAS/PORTUGUES",
+            "COMPUTAÇÃO",
+            "LETRAS/PORTUGUÊS",
             "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
         ]
     },
@@ -541,7 +651,7 @@
         "cursos": [
             "ADMINISTRAÇÃO PÚBLICA",
             "CIÊNCIAS CONTÁBEIS",
-            "COMPUTACAO",
+            "COMPUTAÇÃO",
             "ENSINO DE MATEMÁTICA",
             "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
         ]
@@ -552,7 +662,7 @@
         "lng": -39.67,
         "cursos": [
             "GEOGRAFIA",
-            "MATEMATICA"
+            "MATEMÁTICA"
         ]
     },
     {
@@ -578,7 +688,7 @@
             "EDUCAÇÃO FÍSICA",
             "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
             "GESTÃO ESCOLAR - PNAP",
-            "HISTORIA"
+            "HISTÓRIA"
         ]
     },
     {
@@ -587,7 +697,7 @@
         "lng": -38.77,
         "cursos": [
             "ENSINO DE MATEMÁTICA",
-            "MATEMATICA",
+            "MATEMÁTICA",
             "PEDAGOGIA"
         ]
     },
@@ -614,7 +724,7 @@
         "lat": -5.1,
         "lng": -38.37,
         "cursos": [
-            "MATEMATICA",
+            "MATEMÁTICA",
             "PEDAGOGIA"
         ]
     },
@@ -634,7 +744,7 @@
             "COMPUTAÇÃO",
             "CONTABILIDADE PÚBLICA",
             "ENSINO DE MATEMÁTICA",
-            "HISTORIA",
+            "HISTÓRIA",
             "QUÍMICA"
         ]
     },
@@ -646,7 +756,7 @@
             "ALFABETIZAÇÃO E MULTILETRAMENTOS",
             "CONTABILIDADE PÚBLICA",
             "GESTÃO ESCOLAR - PNAP",
-            "MATEMATICA",
+            "MATEMÁTICA",
             "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
         ]
     },
@@ -658,7 +768,7 @@
             "ALFABETIZAÇÃO E MULTILETRAMENTOS",
             "CIÊNCIA É 10! - PROJETO NACIONAL",
             "CONTROLADORIA PÚBLICA",
-            "MATEMATICA"
+            "MATEMÁTICA"
         ]
     },
     {
@@ -695,7 +805,7 @@
         "lng": -39.01,
         "cursos": [
             "ARTES VISUAIS",
-            "EDUCACAO FISICA",
+            "EDUCAÇÃO FÍSICA",
             "EDUCAÇÃO FÍSICA",
             "GESTÃO PÚBLICA - PNAP"
         ]
@@ -705,9 +815,9 @@
         "lat": -5.19,
         "lng": -39.29,
         "cursos": [
-            "CIENCIAS BIOLOGICAS",
-            "COMPUTACAO",
-            "EDUCACAO FISICA",
+            "CIÊNCIAS BIOLÓGICAS",
+            "COMPUTAÇÃO",
+            "EDUCAÇÃO FÍSICA",
             "GESTÃO EM SAÚDE"
         ]
     },
@@ -717,7 +827,7 @@
         "lng": -38.13,
         "cursos": [
             "ADMINISTRAÇÃO PÚBLICA",
-            "CIENCIAS BIOLOGICAS",
+            "CIÊNCIAS BIOLÓGICAS",
             "CIÊNCIAS CONTÁBEIS",
             "EDUCAÇÃO E DIVERSIDADES",
             "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
@@ -731,7 +841,7 @@
         "lat": -4.33,
         "lng": -40.15,
         "cursos": [
-            "EDUCACAO FISICA",
+            "EDUCAÇÃO FÍSICA",
             "GEOGRAFIA"
         ]
     },
@@ -740,7 +850,7 @@
         "lat": -3.68,
         "lng": -40.34,
         "cursos": [
-            "CIENCIAS BIOLOGICAS",
+            "CIÊNCIAS BIOLÓGICAS",
             "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM"
         ]
     },
@@ -771,7 +881,7 @@
         "cursos": [
             "ADMINISTRAÇÃO PÚBLICA",
             "CIÊNCIAS CONTÁBEIS",
-            "LETRAS/PORTUGUES"
+            "LETRAS/PORTUGUÊS"
         ]
     },
     {
@@ -779,8 +889,8 @@
         "lat": -3.73,
         "lng": -40.99,
         "cursos": [
-            "LETRAS/PORTUGUES",
-            "MATEMATICA"
+            "LETRAS/PORTUGUÊS",
+            "MATEMÁTICA"
         ]
     },
     {
@@ -796,54 +906,62 @@
         "lat": -3.85,
         "lng": -40.92,
         "cursos": [
-            "EDUCACAO FISICA"
+            "EDUCAÇÃO FÍSICA"
         ]
     }
 ];
 
-        // Inicializa o mapa
-        const map = L.map('map').setView([-5.0, -39.5], 7);
+        const map = L.map('map', { zoomControl: false }).setView([-5.0, -39.5], 7.5);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Adiciona o tile layer (mapa base)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        const poloList = document.getElementById('polo-list');
+        const poloListContainer = document.getElementById('polo-list');
+        const searchInput = document.getElementById('search-input');
         const markers = {};
 
-        // Função para criar o conteúdo do popup
         function createPopupContent(polo) {
-            let coursesList = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
-            return `
-                <div class="popup-title">${polo.polo}</div>
-                <div class="popup-courses-label">Cursos oferecidos:</div>
-                <ul class="popup-courses">${coursesList}</ul>
-            `;
+            let coursesList = polo.cursos.map(curso => `<li>${curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase()}</li>`).join('');
+            return `<div class="popup-title">${polo.polo}</div><div class="popup-courses-label">Cursos oferecidos:</div><ul class="popup-courses">${coursesList}</ul>`;
         }
+        
+        function renderAccordion(polos) {
+            poloListContainer.innerHTML = '';
+            polos.sort((a, b) => a.polo.localeCompare(b.polo));
+            
+            let animationDelay = 0;
+            polos.forEach(polo => {
+                const customIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div class="marker-pin"></div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                });
 
-        // Função para criar o acordeão e os marcadores
-        function createAccordionAndMarkers() {
-            poloList.innerHTML = ''; // Limpa a lista antes de recriar
+                if (!markers[polo.polo]) {
+                     const marker = L.marker([polo.lat, polo.lng], { icon: customIcon }).addTo(map)
+                        .bindPopup(createPopupContent(polo));
+                     markers[polo.polo] = marker;
+                }
+                const marker = markers[polo.polo];
 
-            polosUECE.forEach(polo => {
-                // Adiciona marcador ao mapa
-                const marker = L.marker([polo.lat, polo.lng]).addTo(map)
-                    .bindPopup(createPopupContent(polo));
-                
-                markers[polo.polo] = marker;
-
-                // Cria item do acordeão
                 const accordionItem = document.createElement('div');
                 accordionItem.className = 'accordion-item';
                 accordionItem.setAttribute('data-polo', polo.polo);
+                accordionItem.style.animationDelay = `${animationDelay}s`;
+                animationDelay += 0.05;
 
                 const accordionHeader = document.createElement('div');
                 accordionHeader.className = 'accordion-header';
+                const courseText = polo.cursos.length === 1 ? 'curso' : 'cursos';
                 accordionHeader.innerHTML = `
-                    <span class="accordion-title">${polo.polo}</span>
-                    <span class="accordion-count">${polo.cursos.length} curso(s)</span>
-                    <span class="accordion-icon">&#9660;</span>
+                    <div class="title-container">
+                        <span class="accordion-title">${polo.polo}</span>
+                        <span class="accordion-count">${polo.cursos.length} ${courseText}</span>
+                    </div>
+                    <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>
                 `;
 
                 const accordionContent = document.createElement('div');
@@ -854,73 +972,70 @@
                 
                 const courseList = document.createElement('ul');
                 courseList.className = 'course-list';
-                courseList.innerHTML = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
+                courseList.innerHTML = polo.cursos.map((curso, index) => `<li style="animation-delay: ${index * 0.05}s">${curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase()}</li>`).join('');
                 
                 accordionBody.appendChild(courseList);
                 accordionContent.appendChild(accordionBody);
                 accordionItem.appendChild(accordionHeader);
                 accordionItem.appendChild(accordionContent);
-                poloList.appendChild(accordionItem);
+                poloListContainer.appendChild(accordionItem);
 
-                // Evento de clique no header do acordeão
+                const activatePolo = () => {
+                    document.querySelectorAll('.pulsing-marker').forEach(m => m.classList.remove('pulsing-marker'));
+                    if (marker._icon) marker._icon.classList.add('pulsing-marker');
+                    
+                    const allItems = document.querySelectorAll('.accordion-item');
+                    allItems.forEach(item => {
+                        if(item.getAttribute('data-polo') === polo.polo) {
+                           if (!item.classList.contains('active')) {
+                               toggleAccordion(item, true);
+                               item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                           }
+                        } else if (item.classList.contains('active')) {
+                            toggleAccordion(item, false);
+                        }
+                    });
+                };
+                
                 accordionHeader.addEventListener('click', () => {
-                    toggleAccordion(accordionItem);
+                    activatePolo();
                     marker.openPopup();
-                    map.setView([polo.lat, polo.lng], 10);
+                    map.flyTo([polo.lat, polo.lng], 11);
                 });
 
-                // Evento de clique no marcador
-                marker.on('click', () => {
-                    const activeItem = document.querySelector('.accordion-item.active');
-                    if (activeItem) {
-                        toggleAccordion(activeItem, false);
-                    }
-                    const currentItem = document.querySelector(`.accordion-item[data-polo="${polo.polo}"]`);
-                    if (currentItem) {
-                        toggleAccordion(currentItem, true);
-                    }
+                marker.off('click').on('click', () => {
+                    activatePolo();
                 });
             });
         }
 
-        // Função para abrir/fechar o acordeão
-        function toggleAccordion(item, forceOpen = false) {
-            const content = item.querySelector('.accordion-content');
-            const icon = item.querySelector('.accordion-icon');
-            const isActive = item.classList.contains('active');
 
-            if (forceOpen && !isActive) {
+        function toggleAccordion(item, forceState) {
+            const content = item.querySelector('.accordion-content');
+            const shouldBeActive = forceState !== undefined ? forceState : !item.classList.contains('active');
+
+            if (shouldBeActive) {
+                const activeItem = document.querySelector('.accordion-item.active');
+                if (activeItem && activeItem !== item) {
+                    activeItem.classList.remove('active');
+                    activeItem.querySelector('.accordion-content').style.maxHeight = null;
+                }
                 item.classList.add('active');
                 content.style.maxHeight = content.scrollHeight + 'px';
-                icon.classList.add('rotated');
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else if (!forceOpen) {
-                if (isActive) {
-                    item.classList.remove('active');
-                    content.style.maxHeight = null;
-                    icon.classList.remove('rotated');
-                } else {
-                    // Fecha outros itens abertos
-                    const activeItem = document.querySelector('.accordion-item.active');
-                    if (activeItem) {
-                        activeItem.classList.remove('active');
-                        activeItem.querySelector('.accordion-content').style.maxHeight = null;
-                        activeItem.querySelector('.accordion-icon').classList.remove('rotated');
-                    }
-                    
-                    item.classList.add('active');
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                    icon.classList.add('rotated');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
+            } else {
+                item.classList.remove('active');
+                content.style.maxHeight = null;
             }
         }
 
-        // Inicializa o mapa e o acordeão
-        createAccordionAndMarkers();
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredPolos = polosUECE.filter(polo => polo.polo.toLowerCase().includes(searchTerm));
+            renderAccordion(filteredPolos);
+        });
 
+        renderAccordion(polosUECE);
     </script>
 </body>
 </html>
-</html>
-</html>
+
