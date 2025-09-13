@@ -254,142 +254,673 @@
     <script>
         // Dados dos polos da UECE
         const polosUECE = [
-            { nome: 'AMONTADA', lat: -3.3628, lng: -39.8267, cursos: ['Geografia', 'Esp. Gestão Pública Municipal'] },
-            { nome: 'ARACOIABA', lat: -4.3708, lng: -38.8167, cursos: ['Educação Física', 'História'] },
-            { nome: 'BEBERIBE', lat: -4.1797, lng: -38.1306, cursos: ['Ciências Biológicas', 'Ciências Contábeis', 'Computação', 'Educação Física', 'História', 'Pedagogia', 'Química', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública', 'Esp. Gestão Pedagógica da Escola Básica'] },
-            { nome: 'BREJO SANTO', lat: -7.4889, lng: -38.9833, cursos: ['Esp. Controladoria Pública'] },
-            { nome: 'CAMOCIM', lat: -2.9019, lng: -40.8406, cursos: ['Química'] },
-            { nome: 'CAMPOS SALES', lat: -7.0736, lng: -40.3764, cursos: ['Esp. Gestão Pública'] },
-            { nome: 'CANINDÉ', lat: -4.3556, lng: -39.3125, cursos: ['História', 'Química', 'Esp. Gestão Pública'] },
-            { nome: 'CAUCAIA - ARATURI', lat: -3.7361, lng: -38.6531, cursos: ['Administração Pública', 'Pedagogia'] },
-            { nome: 'CAUCAIA - ITAMBÉ', lat: -3.7361, lng: -38.6531, cursos: ['Esp. Ensino de Matemática'] },
-            { nome: 'CAUCAIA - NOVO PABUSSU', lat: -3.7361, lng: -38.6531, cursos: ['Ciências Biológicas', 'Computação', 'Química', 'Esp. Gestão Pública'] },
-            { nome: 'FORTALEZA', lat: -3.7319, lng: -38.5267, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Educação Física', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
-            { nome: 'ICÓ', lat: -6.4000, lng: -38.8667, cursos: ['Geografia', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública Municipal'] },
-            { nome: 'IGUATU', lat: -6.3597, lng: -39.2986, cursos: ['Administração Pública', 'Ciências Contábeis', 'Computação', 'Geografia', 'Esp. Ciências é 10', 'Esp. Controladoria Pública', 'Esp. Gestão Pública'] },
-            { nome: 'ITAPIPOCA', lat: -3.4944, lng: -39.5786, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10'] },
-            { nome: 'ITAREMA', lat: -2.9244, lng: -39.9167, cursos: ['História', 'Esp. Ensino de Matemática'] },
-            { nome: 'IPUEIRAS', lat: -4.2389, lng: -40.7167, cursos: ['Esp. Controladoria Pública'] },
-            { nome: 'JAGUARIBE', lat: -5.8903, lng: -38.6222, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Biológicas', 'Ciências Contábeis', 'Esp. Contabilidade Pública', 'Esp. Ensino de Matemática'] },
-            { nome: 'LAVRAS DA MANGABEIRA', lat: -6.7556, lng: -38.9667, cursos: ['Esp. Gestão Pública'] },
-            { nome: 'LIMOEIRO DO NORTE', lat: -5.1411, lng: -38.0978, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Gestão Pública Municipal'] },
-            { nome: 'MADALENA', lat: -4.8333, lng: -39.5500, cursos: ['Esp. Ciências é 10', 'Esp. Gestão Pedagógica da Escola Básica'] },
-            { nome: 'MARACANAÚ', lat: -3.8767, lng: -38.6256, cursos: ['Administração Pública', 'Artes Visuais', 'Pedagogia', 'Esp. Gestão Pedagógica da Escola Básica'] },
-            { nome: 'MARANGUAPE', lat: -3.8889, lng: -38.6833, cursos: ['Administração Pública', 'Ciências Biológicas', 'Educação Física', 'Esp. Gestão Pedagógica da Escola Básica', 'Esp. Gestão Pública'] },
-            { nome: 'MAURITI', lat: -7.3833, lng: -38.7667, cursos: ['Esp. Gestão Pública Municipal'] },
-            { nome: 'MERUOCA', lat: -3.5333, lng: -40.4500, cursos: ['Esp. Gestão Pública Municipal'] },
-            { nome: 'ORÓS', lat: -6.2417, lng: -39.0167, cursos: ['Computação', 'Química'] },
-            { nome: 'QUITERIANÓPOLIS', lat: -5.8333, lng: -40.6833, cursos: ['Geografia'] },
-            { nome: 'QUIXADÁ', lat: -4.9714, lng: -39.0178, cursos: ['Artes Visuais', 'Educação Física', 'Esp. Ciências é 10', 'Esp. Ensino de Matemática'] },
-            { nome: 'QUIXARAMOBIM', lat: -5.1975, lng: -39.2906, cursos: ['Administração Pública', 'Artes Visuais', 'Ciências Contábeis', 'Computação', 'Pedagogia', 'Esp. Contabilidade Pública', 'Esp. Controladoria Pública'] },
-            { nome: 'RUSSAS', lat: -4.9394, lng: -37.9775, cursos: ['Administração Pública', 'Ciências Contábeis'] },
-            { nome: 'SANTA QUITÉRIA', lat: -4.3333, lng: -40.1500, cursos: ['Geografia'] },
-            { nome: 'SÃO GONÇALO DO AMARANTE', lat: -3.6083, lng: -38.9667, cursos: ['Geografia', 'História'] },
-            { nome: 'SOBRAL', lat: -3.6861, lng: -40.3500, cursos: ['Esp. Auditoria e Controle', 'Esp. Controladoria Pública'] },
-            { nome: 'TAUÁ', lat: -6.0000, lng: -40.2917, cursos: ['Administração Pública', 'Ciências Contábeis', 'Esp. Auditoria e Controle', 'Esp. Ciências é 10', 'Esp. Gestão Pública Municipal'] }
-        ];
-        
-        let poloSelecionado = null;
-        let map;
-        let markers = [];
-        
-        // Inicializar o mapa
-        function initMap() {
-            map = L.map('map').setView([-5.0, -39.5], 7);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            
-            // Adicionar marcadores
-            polosUECE.forEach((polo, index) => {
-                const marker = L.marker([polo.lat, polo.lng]).addTo(map);
+    {
+        "polo": "AMONTADA",
+        "lat": -3.36,
+        "lng": -39.83,
+        "cursos": [
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "EDUCAÇÃO E DIVERSIDADES",
+            "GEOGRAFIA",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
+        ]
+    },
+    {
+        "polo": "AQUIRAZ",
+        "lat": -3.9,
+        "lng": -38.39,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
+            "COMPUTACAO",
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
+        ]
+    },
+    {
+        "polo": "ARACATI",
+        "lat": -4.56,
+        "lng": -37.77,
+        "cursos": [
+            "AUDITORIA E CONTROLE INTERNO",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
+        ]
+    },
+    {
+        "polo": "ARACOIABA",
+        "lat": -4.37,
+        "lng": -38.81,
+        "cursos": [
+            "EDUCAÇÃO FÍSICA",
+            "HISTÓRIA",
+            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
+        ]
+    },
+    {
+        "polo": "ASSARÉ",
+        "lat": -6.87,
+        "lng": -39.87,
+        "cursos": [
+            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
+        ]
+    },
+    {
+        "polo": "BATURITÉ",
+        "lat": -4.33,
+        "lng": -38.88,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS"
+        ]
+    },
+    {
+        "polo": "BEBERIBE",
+        "lat": -4.18,
+        "lng": -38.13,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
+            "CIÊNCIAS BIOLÓGICAS",
+            "CIÊNCIAS CONTÁBEIS",
+            "COMPUTAÇÃO",
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "EDUCAÇÃO FÍSICA",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "HISTÓRIA",
+            "PEDAGOGIA",
+            "QUÍMICA",
+            "TECNÓLOGO EM TURISMO COMUNITÁRIO",
+            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
+        ]
+    },
+    {
+        "polo": "BOA VIAGEM",
+        "lat": -5.12,
+        "lng": -39.73,
+        "cursos": [
+            "ENSINO DE MATEMÁTICA",
+            "GESTÃO PÚBLICA MUNICIPAL"
+        ]
+    },
+    {
+        "polo": "CAMOCIM",
+        "lat": -2.9,
+        "lng": -40.84,
+        "cursos": [
+            "CIENCIAS BIOLOGICAS",
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "QUÍMICA",
+            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
+        ]
+    },
+    {
+        "polo": "CAMPOS SALES",
+        "lat": -7.07,
+        "lng": -40.37,
+        "cursos": [
+            "ENSINO DE MATEMÁTICA"
+        ]
+    },
+    {
+        "polo": "CANINDÉ",
+        "lat": -4.35,
+        "lng": -39.31,
+        "cursos": [
+            "EDUCAÇÃO E DIVERSIDADES",
+            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
+            "HISTÓRIA",
+            "QUÍMICA",
+            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
+        ]
+    },
+    {
+        "polo": "CASCAVEL",
+        "lat": -4.13,
+        "lng": -38.24,
+        "cursos": [
+            "HISTORIA",
+            "LETRAS/LITERATURA",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "CAUCAIA - ARATURI",
+        "lat": -3.7684372,
+        "lng": -38.6383563,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS", "CIÊNCIAS BIOLÓGICAS", "EDUCAÇÃO FÍSICA", "HISTÓRIA", "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "CAUCAIA - ITAMBÉ",
+        "lat": -3.7319255,
+        "lng": -38.6524174,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "GESTÃO PÚBLICA MUNICIPAL", "LETRAS/PORTUGUES"
+        ]
+    },
+    {
+        "polo": "CAUCAIA - NOVO PABUSSU",
+        "lat": -3.7296388,
+        "lng": -38.6666252,
+        "cursos": [
+            "CIÊNCIAS BIOLÓGICAS", "COMPUTAÇÃO", "EDUCAÇÃO E DIVERSIDADES", "GOVERNANÇA GLOBAL", "DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "QUÍMICA"
+        ]
+    },
+    {
+        "polo": "CRATEÚS",
+        "lat": -5.17,
+        "lng": -40.67,
+        "cursos": [
+            "AUDITORIA E CONTROLE INTERNO",
+            "GESTÃO ESCOLAR - PNAP"
+        ]
+    },
+    {
+        "polo": "FORTALEZA",
+        "lat": -3.72,
+        "lng": -38.52,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "ARTES VISUAIS",
+            "CIÊNCIA É 10! - PROJETO NACIONAL",
+            "CIÊNCIAS BIOLÓGICAS",
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "EDUCAÇÃO FÍSICA",
+            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
+            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
+            "GESTÃO PÚBLICA MUNICIPAL",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS"
+        ]
+    },
+    {
+        "polo": "GRANJA",
+        "lat": -3.12,
+        "lng": -40.82,
+        "cursos": [
+            "GESTÃO PÚBLICA MUNICIPAL"
+        ]
+    },
+    {
+        "polo": "HORIZONTE",
+        "lat": -4.09,
+        "lng": -38.49,
+        "cursos": [
+            "CONTROLADORIA PÚBLICA",
+            "GEOGRAFIA",
+            "HISTORIA"
+        ]
+    },
+    {
+        "polo": "ICÓ",
+        "lat": -6.4,
+        "lng": -38.86,
+        "cursos": [
+            "GEOGRAFIA",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "IGUATU",
+        "lat": -6.36,
+        "lng": -39.29,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIÊNCIAS CONTÁBEIS",
+            "COMPUTAÇÃO",
+            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
+            "GEOGRAFIA",
+            "HISTORIA",
+            "LETRAS/LITERATURA",
+            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
+        ]
+    },
+    {
+        "polo": "ITAPIPOCA",
+        "lat": -3.49,
+        "lng": -39.58,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIÊNCIAS CONTÁBEIS",
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
+            "GESTÃO EM SAÚDE",
+            "GESTÃO ESCOLAR - PNAP",
+            "GESTÃO PÚBLICA - PNAP",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS"
+        ]
+    },
+    {
+        "polo": "ITAREMA",
+        "lat": -2.92,
+        "lng": -39.91,
+        "cursos": [
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
+            "HISTÓRIA"
+        ]
+    },
+    {
+        "polo": "JAGUARIBE",
+        "lat": -5.89,
+        "lng": -38.62,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "ARTES VISUAIS",
+            "AUDITORIA E CONTROLE INTERNO",
+            "CIÊNCIAS BIOLÓGICAS",
+            "CIÊNCIAS CONTÁBEIS",
+            "COMPUTACAO",
+            "LETRAS/PORTUGUES",
+            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
+        ]
+    },
+    {
+        "polo": "JUAZEIRO DO NORTE",
+        "lat": -7.21,
+        "lng": -39.31,
+        "cursos": [
+            "CONTABILIDADE PÚBLICA",
+            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
+            "GESTÃO PÚBLICA MUNICIPAL"
+        ]
+    },
+    {
+        "polo": "LAVRAS DA MANGABEIRA",
+        "lat": -6.75,
+        "lng": -38.96,
+        "cursos": [
+            "GESTÃO EM SAÚDE"
+        ]
+    },
+    {
+        "polo": "LIMOEIRO DO NORTE",
+        "lat": -5.14,
+        "lng": -38.09,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIÊNCIAS CONTÁBEIS",
+            "COMPUTACAO",
+            "ENSINO DE MATEMÁTICA",
+            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
+        ]
+    },
+    {
+        "polo": "MADALENA",
+        "lat": -4.85,
+        "lng": -39.67,
+        "cursos": [
+            "GEOGRAFIA",
+            "MATEMATICA"
+        ]
+    },
+    {
+        "polo": "MARACANAÚ",
+        "lat": -3.87,
+        "lng": -38.62,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "ARTES VISUAIS",
+            "CONTROLADORIA PÚBLICA",
+            "EDUCAÇÃO E DIVERSIDADES",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "MARANGUAPE",
+        "lat": -3.89,
+        "lng": -38.68,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIÊNCIAS BIOLÓGICAS",
+            "CONTABILIDADE PÚBLICA",
+            "EDUCAÇÃO FÍSICA",
+            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
+            "GESTÃO ESCOLAR - PNAP",
+            "HISTORIA"
+        ]
+    },
+    {
+        "polo": "MAURITI",
+        "lat": -7.39,
+        "lng": -38.77,
+        "cursos": [
+            "ENSINO DE MATEMÁTICA",
+            "MATEMATICA",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "MERUOCA",
+        "lat": -3.54,
+        "lng": -40.45,
+        "cursos": [
+            "CONTROLADORIA PÚBLICA",
+            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
+        ]
+    },
+    {
+        "polo": "MOMBAÇA",
+        "lat": -5.74,
+        "lng": -39.62,
+        "cursos": [
+            "AUDITORIA E CONTROLE INTERNO",
+            "GESTÃO PÚBLICA - PNAP"
+        ]
+    },
+    {
+        "polo": "MORADA NOVA",
+        "lat": -5.1,
+        "lng": -38.37,
+        "cursos": [
+            "MATEMATICA",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "NOVA RUSSAS",
+        "lat": -4.7,
+        "lng": -40.56,
+        "cursos": [
+            "LETRAS/LITERATURA"
+        ]
+    },
+    {
+        "polo": "ORÓS",
+        "lat": -6.24,
+        "lng": -38.91,
+        "cursos": [
+            "COMPUTAÇÃO",
+            "CONTABILIDADE PÚBLICA",
+            "ENSINO DE MATEMÁTICA",
+            "HISTORIA",
+            "QUÍMICA"
+        ]
+    },
+    {
+        "polo": "PACOTI",
+        "lat": -4.22,
+        "lng": -38.92,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
+            "CONTABILIDADE PÚBLICA",
+            "GESTÃO ESCOLAR - PNAP",
+            "MATEMATICA",
+            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
+        ]
+    },
+    {
+        "polo": "PARAMBU",
+        "lat": -6.21,
+        "lng": -40.69,
+        "cursos": [
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
+            "CIÊNCIA É 10! - PROJETO NACIONAL",
+            "CONTROLADORIA PÚBLICA",
+            "MATEMATICA"
+        ]
+    },
+    {
+        "polo": "PEDRA BRANCA",
+        "lat": -5.45,
+        "lng": -39.71,
+        "cursos": [
+            "CIÊNCIA É 10! - PROJETO NACIONAL",
+            "CONTROLADORIA PÚBLICA",
+            "GESTÃO ESCOLAR - PNAP",
+            "PEDAGOGIA"
+        ]
+    },
+    {
+        "polo": "PIQUET CARNEIRO",
+        "lat": -5.31,
+        "lng": -39.4,
+        "cursos": [
+            "CIÊNCIA É 10! - PROJETO NACIONAL",
+            "CONTABILIDADE PÚBLICA"
+        ]
+    },
+    {
+        "polo": "PIRES FERREIRA",
+        "lat": -4.25,
+        "lng": -40.63,
+        "cursos": [
+            "LETRAS/LITERATURA"
+        ]
+    },
+    {
+        "polo": "QUIXADÁ",
+        "lat": -4.97,
+        "lng": -39.01,
+        "cursos": [
+            "ARTES VISUAIS",
+            "EDUCACAO FISICA",
+            "EDUCAÇÃO FÍSICA",
+            "GESTÃO PÚBLICA - PNAP"
+        ]
+    },
+    {
+        "polo": "QUIXERAMOBIM",
+        "lat": -5.19,
+        "lng": -39.29,
+        "cursos": [
+            "CIENCIAS BIOLOGICAS",
+            "COMPUTACAO",
+            "EDUCACAO FISICA",
+            "GESTÃO EM SAÚDE"
+        ]
+    },
+    {
+        "polo": "RUSSAS",
+        "lat": -4.94,
+        "lng": -38.13,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIENCIAS BIOLOGICAS",
+            "CIÊNCIAS CONTÁBEIS",
+            "EDUCAÇÃO E DIVERSIDADES",
+            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
+            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
+            "GESTÃO EM SAÚDE",
+            "GESTÃO PÚBLICA - PNAP"
+        ]
+    },
+    {
+        "polo": "SANTA QUITÉRIA",
+        "lat": -4.33,
+        "lng": -40.15,
+        "cursos": [
+            "EDUCACAO FISICA",
+            "GEOGRAFIA"
+        ]
+    },
+    {
+        "polo": "SOBRAL",
+        "lat": -3.68,
+        "lng": -40.34,
+        "cursos": [
+            "CIENCIAS BIOLOGICAS",
+            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM"
+        ]
+    },
+    {
+        "polo": "SÃO GONÇALO DO AMARANTE",
+        "lat": -3.6,
+        "lng": -38.96,
+        "cursos": [
+            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
+            "GEOGRAFIA",
+            "GESTÃO PÚBLICA MUNICIPAL",
+            "HISTÓRIA"
+        ]
+    },
+    {
+        "polo": "TABULEIRO DO NORTE",
+        "lat": -5.25,
+        "lng": -38.12,
+        "cursos": [
+            "GESTÃO ESCOLAR - PNAP",
+            "GESTÃO PÚBLICA - PNAP"
+        ]
+    },
+    {
+        "polo": "TAUÁ",
+        "lat": -5.97,
+        "lng": -40.29,
+        "cursos": [
+            "ADMINISTRAÇÃO PÚBLICA",
+            "CIÊNCIAS CONTÁBEIS",
+            "LETRAS/PORTUGUES"
+        ]
+    },
+    {
+        "polo": "TIANGUA",
+        "lat": -3.73,
+        "lng": -40.99,
+        "cursos": [
+            "LETRAS/PORTUGUES",
+            "MATEMATICA"
+        ]
+    },
+    {
+        "polo": "TRAIRI",
+        "lat": -3.27,
+        "lng": -39.26,
+        "cursos": [
+            "AUDITORIA E CONTROLE INTERNO"
+        ]
+    },
+    {
+        "polo": "UBAJARA",
+        "lat": -3.85,
+        "lng": -40.92,
+        "cursos": [
+            "EDUCACAO FISICA"
+        ]
+    }
+];
+
+        // Inicializa o mapa
+        const map = L.map('map').setView([-5.0, -39.5], 7);
+
+        // Adiciona o tile layer (mapa base)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const poloList = document.getElementById('polo-list');
+        const markers = {};
+
+        // Função para criar o conteúdo do popup
+        function createPopupContent(polo) {
+            let coursesList = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
+            return `
+                <div class="popup-title">${polo.polo}</div>
+                <div class="popup-courses-label">Cursos oferecidos:</div>
+                <ul class="popup-courses">${coursesList}</ul>
+            `;
+        }
+
+        // Função para criar o acordeão e os marcadores
+        function createAccordionAndMarkers() {
+            poloList.innerHTML = ''; // Limpa a lista antes de recriar
+
+            polosUECE.forEach(polo => {
+                // Adiciona marcador ao mapa
+                const marker = L.marker([polo.lat, polo.lng]).addTo(map)
+                    .bindPopup(createPopupContent(polo));
                 
-                // Criar conteúdo do popup
-                const popupContent = `
-                    <div>
-                        <div class="popup-title">${polo.nome}</div>
-                        <div class="popup-courses-label">Cursos oferecidos:</div>
-                        <ul class="popup-courses">
-                            ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
-                        </ul>
-                    </div>
+                markers[polo.polo] = marker;
+
+                // Cria item do acordeão
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item';
+                accordionItem.setAttribute('data-polo', polo.polo);
+
+                const accordionHeader = document.createElement('div');
+                accordionHeader.className = 'accordion-header';
+                accordionHeader.innerHTML = `
+                    <span class="accordion-title">${polo.polo}</span>
+                    <span class="accordion-count">${polo.cursos.length} curso(s)</span>
+                    <span class="accordion-icon">&#9660;</span>
                 `;
+
+                const accordionContent = document.createElement('div');
+                accordionContent.className = 'accordion-content';
+
+                const accordionBody = document.createElement('div');
+                accordionBody.className = 'accordion-body';
                 
-                marker.bindPopup(popupContent);
+                const courseList = document.createElement('ul');
+                courseList.className = 'course-list';
+                courseList.innerHTML = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
                 
-                marker.on('click', () => {
-                    selecionarPolo(polo);
+                accordionBody.appendChild(courseList);
+                accordionContent.appendChild(accordionBody);
+                accordionItem.appendChild(accordionHeader);
+                accordionItem.appendChild(accordionContent);
+                poloList.appendChild(accordionItem);
+
+                // Evento de clique no header do acordeão
+                accordionHeader.addEventListener('click', () => {
+                    toggleAccordion(accordionItem);
+                    marker.openPopup();
+                    map.setView([polo.lat, polo.lng], 10);
                 });
-                
-                markers.push(marker);
+
+                // Evento de clique no marcador
+                marker.on('click', () => {
+                    const activeItem = document.querySelector('.accordion-item.active');
+                    if (activeItem) {
+                        toggleAccordion(activeItem, false);
+                    }
+                    const currentItem = document.querySelector(`.accordion-item[data-polo="${polo.polo}"]`);
+                    if (currentItem) {
+                        toggleAccordion(currentItem, true);
+                    }
+                });
             });
         }
-        
-        // Selecionar um polo
-        function selecionarPolo(polo) {
-            poloSelecionado = polo;
-            atualizarListaPolos();
-            
-            // Rolar para o polo selecionado na lista
-            setTimeout(() => {
-                const poloElement = document.querySelector('.accordion-item .accordion-header.active');
-                if (poloElement) {
-                    poloElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            }, 100);
-        }
-        
-        // Atualizar lista de polos como acordeão
-        function atualizarListaPolos() {
-            const poloList = document.getElementById('polo-list');
-            
-            poloList.innerHTML = polosUECE.map(polo => `
-                <div class="accordion-item">
-                    <div class="accordion-header ${poloSelecionado?.nome === polo.nome ? 'active' : ''}" 
-                         onclick="toggleAccordion('${polo.nome}')">
-                        <div>
-                            <div class="accordion-title">${polo.nome}</div>
-                            <div class="accordion-count">${polo.cursos.length} curso(s)</div>
-                        </div>
-                        <div class="accordion-icon ${poloSelecionado?.nome === polo.nome ? 'rotated' : ''}">▼</div>
-                    </div>
-                    <div class="accordion-content ${poloSelecionado?.nome === polo.nome ? 'expanded' : ''}" 
-                         id="content-${polo.nome.replace(/\s+/g, '-')}">
-                        <div class="accordion-body">
-                            <p style="font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Cursos oferecidos:</p>
-                            <ul class="course-list">
-                                ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Alternar acordeão
-        function toggleAccordion(poloNome) {
-            const polo = polosUECE.find(p => p.nome === poloNome);
-            if (polo) {
-                // Se já está selecionado, deselecionar
-                if (poloSelecionado?.nome === poloNome) {
-                    poloSelecionado = null;
+
+        // Função para abrir/fechar o acordeão
+        function toggleAccordion(item, forceOpen = false) {
+            const content = item.querySelector('.accordion-content');
+            const icon = item.querySelector('.accordion-icon');
+            const isActive = item.classList.contains('active');
+
+            if (forceOpen && !isActive) {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.classList.add('rotated');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (!forceOpen) {
+                if (isActive) {
+                    item.classList.remove('active');
+                    content.style.maxHeight = null;
+                    icon.classList.remove('rotated');
                 } else {
-                    poloSelecionado = polo;
+                    // Fecha outros itens abertos
+                    const activeItem = document.querySelector('.accordion-item.active');
+                    if (activeItem) {
+                        activeItem.classList.remove('active');
+                        activeItem.querySelector('.accordion-content').style.maxHeight = null;
+                        activeItem.querySelector('.accordion-icon').classList.remove('rotated');
+                    }
+                    
+                    item.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.classList.add('rotated');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
-                atualizarListaPolos();
             }
         }
-        
-        // Inicializar quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            atualizarListaPolos();
-        });
+
+        // Inicializa o mapa e o acordeão
+        createAccordionAndMarkers();
+
     </script>
 </body>
 </html>
-
+</html>
+</html>
