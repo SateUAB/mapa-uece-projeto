@@ -17,22 +17,178 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            height: 100vh;
-            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #16a34a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            display: flex;
+            height: 600px;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
         }
         
         #map {
-            height: 100vh;
+            height: 100%;
             width: 100%;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-left: 1px solid #d1d5db;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            color: #15803d;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .polo-selected {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .polo-selected h3 {
+            color: #166534;
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+        }
+        
+        .polo-selected .courses-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .polo-selected ul {
+            list-style-type: disc;
+            list-style-position: inside;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .polo-selected li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .instruction {
+            background-color: #dbeafe;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #1d4ed8;
+        }
+        
+        .accordion {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .accordion-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .accordion-header {
+            background-color: #f9fafb;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .accordion-header:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .accordion-header.active {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+        
+        .accordion-title {
+            font-weight: 600;
+            color: #15803d;
+            font-size: 0.875rem;
+        }
+        
+        .accordion-count {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.2s;
+            color: #6b7280;
+        }
+        
+        .accordion-icon.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: white;
+        }
+        
+        .accordion-content.expanded {
+            max-height: 500px;
+        }
+        
+        .accordion-body {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .course-list {
+            list-style-type: disc;
+            list-style-position: inside;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .course-list li {
+            margin-bottom: 0.25rem;
         }
         
         .leaflet-popup-content {
             margin: 8px 12px;
-            min-width: 200px;
         }
         
         .popup-title {
-            color: #16a34a;
+            color: #15803d;
             font-weight: bold;
             font-size: 1.125rem;
             margin-bottom: 0.5rem;
@@ -41,7 +197,6 @@
         .popup-courses-label {
             font-weight: 600;
             margin-bottom: 0.25rem;
-            color: #374151;
         }
         
         .popup-courses {
@@ -49,24 +204,49 @@
             list-style-position: inside;
             font-size: 0.875rem;
             margin-top: 0.25rem;
-            color: #6b7280;
         }
         
         .popup-courses li {
             margin-bottom: 0.125rem;
         }
         
-        .leaflet-popup-content-wrapper {
-            border-radius: 8px;
-        }
-        
-        .leaflet-popup-tip {
-            background: white;
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .map-container {
+                height: 400px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #d1d5db;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <div class="header">
+        <h1>Mapa UAB/UECE</h1>
+        <p>Polos onde a UECE tem cursos no Ceará</p>
+    </div>
+    
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="sidebar">
+            <h2>Polos UECE</h2>
+            
+            <div id="polo-list" class="accordion">
+                <!-- Acordeão de polos será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
     
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -209,7 +389,7 @@
         "lat": -3.7684372,
         "lng": -38.6383563,
         "cursos": [
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS, CIÊNCIAS BIOLÓGICAS, EDUCAÇÃO FÍSICA, HISTÓRIA, PEDAGOGIA"
+            "ALFABETIZAÇÃO E MULTILETRAMENTOS", "CIÊNCIAS BIOLÓGICAS", "EDUCAÇÃO FÍSICA", "HISTÓRIA", "PEDAGOGIA"
         ]
     },
     {
@@ -217,7 +397,7 @@
         "lat": -3.7319255,
         "lng": -38.6524174,
         "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA, CIÊNCIAS CONTÁBEIS, COMPUTAÇÃO, GESTÃO PÚBLICA MUNICIPAL, LETRAS/PORTUGUES"
+            "ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "GESTÃO PÚBLICA MUNICIPAL", "LETRAS/PORTUGUES"
         ]
     },
     {
@@ -225,7 +405,7 @@
         "lat": -3.7296388,
         "lng": -38.6666252,
         "cursos": [
-            "CIÊNCIAS BIOLÓGICAS, COMPUTAÇÃO, EDUCAÇÃO E DIVERSIDADES, GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS, QUÍMICA"
+            "CIÊNCIAS BIOLÓGICAS", "COMPUTAÇÃO", "EDUCAÇÃO E DIVERSIDADES", "GOVERNANÇA GLOBAL", "DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "QUÍMICA"
         ]
     },
     {
@@ -620,42 +800,129 @@
         ]
     }
 ];
-        
-        // Inicializar o mapa
-        function initMap() {
-            const map = L.map('map').setView([-5.0, -39.5], 7);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            
-            // Adicionar marcadores
-            polosUECE.forEach((polo) => {
-                const marker = L.marker([polo.lat, polo.lng]).addTo(map);
+
+        // Inicializa o mapa
+        const map = L.map('map').setView([-5.0, -39.5], 7);
+
+        // Adiciona o tile layer (mapa base)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const poloList = document.getElementById('polo-list');
+        const markers = {};
+
+        // Função para criar o conteúdo do popup
+        function createPopupContent(polo) {
+            let coursesList = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
+            return `
+                <div class="popup-title">${polo.polo}</div>
+                <div class="popup-courses-label">Cursos oferecidos:</div>
+                <ul class="popup-courses">${coursesList}</ul>
+            `;
+        }
+
+        // Função para criar o acordeão e os marcadores
+        function createAccordionAndMarkers() {
+            poloList.innerHTML = ''; // Limpa a lista antes de recriar
+
+            polosUECE.forEach(polo => {
+                // Adiciona marcador ao mapa
+                const marker = L.marker([polo.lat, polo.lng]).addTo(map)
+                    .bindPopup(createPopupContent(polo));
                 
-                // Criar conteúdo do popup
-                const popupContent = `
-                    <div>
-                        <div class="popup-title">${polo.nome}</div>
-                        <div class="popup-courses-label">Cursos oferecidos:</div>
-                        <ul class="popup-courses">
-                            ${polo.cursos.map(curso => `<li>${curso}</li>`).join('')}
-                        </ul>
-                    </div>
+                markers[polo.polo] = marker;
+
+                // Cria item do acordeão
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item';
+                accordionItem.setAttribute('data-polo', polo.polo);
+
+                const accordionHeader = document.createElement('div');
+                accordionHeader.className = 'accordion-header';
+                accordionHeader.innerHTML = `
+                    <span class="accordion-title">${polo.polo}</span>
+                    <span class="accordion-count">${polo.cursos.length} curso(s)</span>
+                    <span class="accordion-icon">&#9660;</span>
                 `;
+
+                const accordionContent = document.createElement('div');
+                accordionContent.className = 'accordion-content';
+
+                const accordionBody = document.createElement('div');
+                accordionBody.className = 'accordion-body';
                 
-                marker.bindPopup(popupContent, {
-                    maxWidth: 300,
-                    className: 'custom-popup'
+                const courseList = document.createElement('ul');
+                courseList.className = 'course-list';
+                courseList.innerHTML = polo.cursos.map(curso => `<li>${curso}</li>`).join('');
+                
+                accordionBody.appendChild(courseList);
+                accordionContent.appendChild(accordionBody);
+                accordionItem.appendChild(accordionHeader);
+                accordionItem.appendChild(accordionContent);
+                poloList.appendChild(accordionItem);
+
+                // Evento de clique no header do acordeão
+                accordionHeader.addEventListener('click', () => {
+                    toggleAccordion(accordionItem);
+                    marker.openPopup();
+                    map.setView([polo.lat, polo.lng], 10);
+                });
+
+                // Evento de clique no marcador
+                marker.on('click', () => {
+                    const activeItem = document.querySelector('.accordion-item.active');
+                    if (activeItem) {
+                        toggleAccordion(activeItem, false);
+                    }
+                    const currentItem = document.querySelector(`.accordion-item[data-polo="${polo.polo}"]`);
+                    if (currentItem) {
+                        toggleAccordion(currentItem, true);
+                    }
                 });
             });
         }
-        
-        // Inicializar quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-        });
+
+        // Função para abrir/fechar o acordeão
+        function toggleAccordion(item, forceOpen = false) {
+            const content = item.querySelector('.accordion-content');
+            const icon = item.querySelector('.accordion-icon');
+            const isActive = item.classList.contains('active');
+
+            if (forceOpen && !isActive) {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.classList.add('rotated');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (!forceOpen) {
+                if (isActive) {
+                    item.classList.remove('active');
+                    content.style.maxHeight = null;
+                    icon.classList.remove('rotated');
+                } else {
+                    // Fecha outros itens abertos
+                    const activeItem = document.querySelector('.accordion-item.active');
+                    if (activeItem) {
+                        activeItem.classList.remove('active');
+                        activeItem.querySelector('.accordion-content').style.maxHeight = null;
+                        activeItem.querySelector('.accordion-icon').classList.remove('rotated');
+                    }
+                    
+                    item.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.classList.add('rotated');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // Inicializa o mapa e o acordeão
+        createAccordionAndMarkers();
+
     </script>
 </body>
 </html>
+</html>
+</html>
+
 
