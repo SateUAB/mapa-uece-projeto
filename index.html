@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa UAB/UECE - Campi no Ceará</title>
+    <title>Portal UAB/UECE - Ceará</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,15 +14,18 @@
     
     <style>
         :root {
-            --primary-color: #16a34a;
-            --primary-dark: #14532d;
-            --primary-light: #dcfce7;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
+            /* Paleta Institucional e Neutra */
+            --uece-green: #16a34a;
+            --uece-dark: #15803d;
+            --uece-light: #dcfce7;
+            --bg-page: #f3f4f6;
+            --bg-surface: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-tertiary: #9ca3af;
             --border-color: #e5e7eb;
-            --background-color: #f9fafb;
-            --white: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-hover: #d1d5db;
+            --nav-height: 70px;
         }
 
         * {
@@ -30,283 +33,285 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
-        html {
-            scroll-behavior: smooth;
-        }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f3f4f6;
-            color: var(--text-dark);
-            overflow: hidden;
-        }
-        
-        .header {
-            background-image: linear-gradient(45deg, #16a34a, #15803d);
-            color: var(--white);
-            padding: 1rem 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 6px var(--shadow-color);
-            z-index: 1000;
-            position: relative;
-        }
-        
-        .header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden; /* Gerido pelas vistas individualmente */
         }
 
-        .header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .container {
+        /* --- Barra de Navegação Superior --- */
+        .navbar {
+            height: var(--nav-height);
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
             display: flex;
-            height: calc(100vh - 82px);
-            background-color: var(--white);
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
         }
+
+        .brand-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--uece-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 200px;
+        }
+
+        .view-toggles {
+            display: flex;
+            background-color: var(--bg-page);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--bg-surface);
+            color: var(--uece-dark);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .nav-spacer {
+            width: 200px; /* Para equilibrar o flexbox */
+        }
+
+        /* --- Contentores das Vistas --- */
+        .view-container {
+            height: calc(100vh - var(--nav-height));
+            width: 100%;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .view-container.active {
+            display: flex; /* Para o mapa */
+            opacity: 1;
+        }
+
+        #view-dashboard.active {
+            display: block; /* Para o dashboard */
+            overflow-y: auto;
+        }
+
+        /* =========================================
+           ESTILOS DA VISTA DE MAPA 
+           ========================================= */
         
-        .map-container {
+        .map-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-surface);
+        }
+
+        .map-wrapper {
             flex: 1;
             position: relative;
         }
-        
+
         #map {
-            height: 100%;
             width: 100%;
-            background-color: #f0f0f0;
+            height: 100%;
+            background-color: #e5e5e5;
         }
-        
+
+        /* Sidebar do Mapa */
         .sidebar {
-            width: 350px;
-            background: var(--white);
+            width: 380px;
+            background: var(--bg-surface);
             border-left: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: width 0.3s ease;
+            z-index: 500;
         }
 
         .sidebar-header {
             padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            background-color: #f8fafc;
         }
-        
+
         .sidebar-header h2 {
-            color: var(--primary-dark);
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
             margin-bottom: 1rem;
         }
 
-        .search-container {
+        .search-input-wrapper {
             position: relative;
         }
 
-        .search-container::before {
-            content: '🔍';
+        .search-input-wrapper svg {
             position: absolute;
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-light);
-            font-size: 0.9rem;
+            color: var(--text-tertiary);
         }
 
         #search-input {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            padding: 0.6rem 1rem 0.6rem 2.25rem;
             border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
+            border-radius: 6px;
             font-size: 0.9rem;
-            color: var(--text-dark);
-            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
         #search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+            border-color: var(--uece-green);
         }
 
         .sidebar-content {
             overflow-y: auto;
-            flex-grow: 1;
+            flex: 1;
         }
 
-        .sidebar-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        .sidebar-content::-webkit-scrollbar-track {
-            background: var(--background-color);
-        }
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 4px;
-        }
-        .sidebar-content::-webkit-scrollbar-thumb:hover {
-            background: #aaa;
-        }
-
+        /* Accordion do Mapa */
         .accordion-item {
             border-bottom: 1px solid var(--border-color);
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInUp 0.5s ease-out forwards;
         }
-        
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
+
         .accordion-header {
-            background-color: var(--white);
             padding: 1rem 1.5rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s ease-out;
+            transition: background-color 0.2s;
         }
-        
+
         .accordion-header:hover {
-            background-color: var(--background-color);
-            transform: translateX(4px);
+            background-color: var(--bg-page);
         }
-        
+
         .accordion-item.active .accordion-header {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
+            background-color: #f0fdf4;
         }
-        
-        .title-container {
+
+        .accordion-title-group {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
             gap: 2px;
         }
 
         .accordion-title {
             font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .accordion-item.active .accordion-title {
+            color: var(--uece-dark);
         }
 
         .accordion-count {
             font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-light);
-            transition: color 0.2s ease-out;
-        }
-        
-        .accordion-item.active .accordion-title {
-            color: var(--primary-dark);
-        }
-
-        .accordion-item.active .accordion-count {
-            color: var(--primary-dark);
+            color: var(--text-secondary);
         }
 
         .accordion-icon {
+            color: var(--text-tertiary);
             transition: transform 0.3s ease;
-            color: var(--text-light);
-            width: 16px;
-            height: 16px;
         }
-        
+
         .accordion-item.active .accordion-icon {
             transform: rotate(180deg);
-            color: var(--primary-dark);
+            color: var(--uece-dark);
         }
-        
+
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
-            background-color: var(--background-color);
-        }
-        
-        .accordion-item.active .accordion-content {
-            padding-bottom: 1rem;
+            transition: max-height 0.3s ease-out;
+            background-color: var(--bg-surface);
         }
 
         .accordion-body {
-            padding: 0 1.5rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
+            padding: 0 1.5rem 1rem 1.5rem;
         }
-        
+
         .course-list {
-            list-style-type: none;
-            padding-left: 0;
+            list-style: none;
+            margin-top: 0.5rem;
         }
 
         .course-list li {
-            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0.4rem 0 0.4rem 1.25rem;
             position: relative;
-            padding-left: 1.5em;
-            line-height: 1.4;
-            opacity: 0;
-            animation: fadeIn-up 0.5s ease-out forwards;
+            border-bottom: 1px dashed var(--border-color);
         }
         
-        .accordion-item.active .course-list li {
-             animation: fadeInUp 0.4s ease-out forwards;
+        .course-list li:last-child {
+            border-bottom: none;
         }
 
         .course-list li::before {
             content: '';
-            background-color: var(--primary-color);
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            display: inline-block;
             position: absolute;
             left: 0;
-            top: 0.4em;
-        }
-        
-        .leaflet-popup-content-wrapper {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            top: 0.8rem;
+            width: 5px;
+            height: 5px;
+            background-color: var(--uece-green);
+            border-radius: 50%;
         }
 
-        .leaflet-popup-content { margin: 1rem; font-size: 0.9rem; }
-        .popup-title { color: var(--primary-dark); font-weight: 700; font-size: 1.125rem; margin-bottom: 0.75rem; }
-        .popup-courses-label { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark); }
-        .popup-courses { list-style-type: none; padding-left: 0; font-size: 0.875rem; margin-top: 0.25rem; }
-        .popup-courses li { margin-bottom: 0.25rem; position: relative; padding-left: 1.5em; }
-        .popup-courses li::before { content: ''; background-color: var(--primary-color); width: 5px; height: 5px; border-radius: 50%; display: inline-block; position: absolute; left: 0; top: 0.4em; }
-        .leaflet-popup-close-button { padding: 8px 8px 0 0 !important; color: var(--text-light) !important; }
-
-        /* Custom Marker Styles */
+        /* Marcadores do Mapa & Popups */
         .custom-marker {
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .marker-pin {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50% 50% 50% 0;
-            background: var(--primary-color);
+            background: var(--uece-green);
             position: absolute;
             transform: rotate(-45deg);
-            border: 2px solid var(--white);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease-out;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
-        .custom-marker::after {
+        .marker-pin::after {
             content: '';
             width: 8px;
             height: 8px;
-            background: var(--white);
+            background: white;
             border-radius: 50%;
             position: absolute;
             top: 50%;
@@ -314,627 +319,373 @@
             transform: translate(-50%, -50%);
         }
         .pulsing-marker .marker-pin {
-            animation: pulse 1.5s infinite;
-            transform: rotate(-45deg) scale(1.1);
+            transform: rotate(-45deg) scale(1.15);
+            background: var(--uece-dark);
+            z-index: 1000 !important;
         }
         
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        .leaflet-popup-content-wrapper { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .popup-title { color: var(--uece-dark); font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; }
+        .popup-courses { list-style: none; font-size: 0.85rem; padding: 0; max-height: 200px; overflow-y: auto;}
+        .popup-courses li { margin-bottom: 0.25rem; padding-left: 1rem; position: relative; color: var(--text-secondary); }
+        .popup-courses li::before { content: '•'; color: var(--uece-green); position: absolute; left: 0; font-weight: bold; }
+
+
+        /* =========================================
+           ESTILOS DA VISTA DE DASHBOARD 
+           ========================================= */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            padding-bottom: 4rem;
         }
-        
-        @media (max-width: 768px) {
-            body { overflow: auto; }
-            .container { flex-direction: column; height: auto; }
-            .map-container { height: 50vh; min-height: 300px; }
-            .sidebar { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border-color); }
+
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .page-header p { color: var(--text-secondary); font-size: 1rem; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            border-left: 4px solid var(--uece-green);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .kpi-icon {
+            color: var(--uece-green);
+            background-color: #f0fdf4;
+            padding: 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kpi-content h3 { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+        .kpi-content .kpi-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .list-panel {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .list-header h2 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+        .badge-count { background-color: var(--border-color); color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 9999px; }
+
+        .course-item {
+            padding: 0.875rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background-color 0.15s;
+        }
+        .course-item:last-child { border-bottom: none; }
+        .course-item:hover { background-color: #f9fafb; color: var(--text-primary); }
+        .course-item::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--uece-green);
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 850px) {
+            .navbar { padding: 0 1rem; }
+            .brand-title span { display: none; } /* Oculta texto da logo, mantém icone */
+            .nav-spacer, .brand-title { width: auto; }
+            
+            .map-layout { flex-direction: column; }
+            .map-wrapper { height: 50vh; flex: none; }
+            .sidebar { width: 100%; height: 50vh; border-left: none; border-top: 1px solid var(--border-color); }
+            
+            .courses-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Mapa UAB/UECE</h1>
-        <p>Polos onde a UECE tem cursos no Ceará</p>
-    </div>
-    
-    <div class="container">
-        <div class="map-container">
-            <div id="map"></div>
+
+    <!-- Navegação / Abas -->
+    <nav class="navbar">
+        <div class="brand-title">
+            <span>UAB / UECE</span>
+        </div>
+
+        <div class="view-toggles">
+            <button class="toggle-btn active" data-target="view-map">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z"/>
+                </svg>
+                Vista de Mapa
+            </button>
+            <button class="toggle-btn" data-target="view-dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+                </svg>
+                Painel de Dados
+            </button>
         </div>
         
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Polos UECE</h2>
-                <div class="search-container">
-                     <input type="text" id="search-input" placeholder="Buscar polo...">
-                </div>
+        <div class="nav-spacer"></div>
+    </nav>
+
+    <!-- ==========================================
+         VISTA 1: MAPA INTERATIVO 
+         ========================================== -->
+    <div id="view-map" class="view-container active">
+        <div class="map-layout">
+            <div class="map-wrapper">
+                <div id="map"></div>
             </div>
-            <div class="sidebar-content">
-                <div id="polo-list" class="accordion">
-                    <!-- Acordeão de polos será preenchido via JavaScript -->
+            
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Polos de Apoio Presencial</h2>
+                    <div class="search-input-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+                        <input type="text" id="search-input" placeholder="Pesquisar por polo...">
+                    </div>
+                </div>
+                <div class="sidebar-content">
+                    <div id="polo-list">
+                        <!-- Acordeão gerado via JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Leaflet JavaScript -->
+
+    <!-- ==========================================
+         VISTA 2: DASHBOARD INSTITUCIONAL 
+         ========================================== -->
+    <div id="view-dashboard" class="view-container">
+        <div class="dashboard-container">
+            <header class="page-header">
+                <h1>Indicadores de Infraestrutura</h1>
+                <p>Visão geral consolidada dos Polos de Apoio Presencial e ofertas de cursos vigentes.</p>
+            </header>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <h3>Polos Físicos Operacionais</h3>
+                        <div class="kpi-value">54</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <h3>Cursos de Graduação</h3>
+                        <div class="kpi-value">14</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                    </div>
+                    <div class="kpi-content">
+                        <h3>Cursos de Especialização</h3>
+                        <div class="kpi-value">18</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="courses-grid">
+                <div class="list-panel">
+                    <div class="list-header">
+                        <h2>Portfólio de Graduação</h2>
+                        <span class="badge-count">14 Cursos</span>
+                    </div>
+                    <div class="list-body">
+                        <div class="course-item">Administração Pública</div>
+                        <div class="course-item">Artes Visuais</div>
+                        <div class="course-item">Ciências Biológicas</div>
+                        <div class="course-item">Ciências Contábeis</div>
+                        <div class="course-item">Computação</div>
+                        <div class="course-item">Educação Física</div>
+                        <div class="course-item">Física</div>
+                        <div class="course-item">Geografia</div>
+                        <div class="course-item">História</div>
+                        <div class="course-item">Letras / Português</div>
+                        <div class="course-item">Matemática</div>
+                        <div class="course-item">Pedagogia</div>
+                        <div class="course-item">Química</div>
+                        <div class="course-item">Tecnólogo em Turismo Comunitário</div>
+                    </div>
+                </div>
+                <div class="list-panel">
+                    <div class="list-header">
+                        <h2>Portfólio de Especialização (Pós)</h2>
+                        <span class="badge-count">18 Cursos</span>
+                    </div>
+                    <div class="list-body">
+                        <div class="course-item">Alfabetização e Multiletramentos</div>
+                        <div class="course-item">Auditoria e Controle Interno</div>
+                        <div class="course-item">Ciência é 10! - Projeto Nacional</div>
+                        <div class="course-item">Contabilidade Pública</div>
+                        <div class="course-item">Controladoria Pública</div>
+                        <div class="course-item">Cultura Oceânica e Sustentabilidade</div>
+                        <div class="course-item">Educação e Diversidades</div>
+                        <div class="course-item">Educação Física Inclusiva (PCD)</div>
+                        <div class="course-item">Ensino de Matemática</div>
+                        <div class="course-item">Gestão da Escola Pública - GEPEM</div>
+                        <div class="course-item">Gestão em Saúde</div>
+                        <div class="course-item">Gestão Escolar - PNAP</div>
+                        <div class="course-item">Gestão Pública - PNAP</div>
+                        <div class="course-item">Gestão Pública Municipal</div>
+                        <div class="course-item">Governança Global e Sustentabilidade</div>
+                        <div class="course-item">Letras / Literatura</div>
+                        <div class="course-item">Tradução Audiovisual e Legendagem</div>
+                        <div class="course-item">Turismo de Base Comunitária</div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer style="text-align: center; padding-top: 3rem; color: var(--text-tertiary); font-size: 0.85rem;">
+                <p>© 2026 UAB/UECE. Dados consolidados a partir de editais vigentes.</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Dados dos polos da UECE com Administração Pública atualizada
-        const polosUECE = [
-    {
-        "polo": "AMONTADA",
-        "lat": -3.36,
-        "lng": -39.83,
-        "cursos": [
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "EDUCAÇÃO E DIVERSIDADES",
-            "GEOGRAFIA",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
-        ]
-    },
-    {
-        "polo": "AQUIRAZ",
-        "lat": -3.9,
-        "lng": -38.39,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
-            "COMPUTAÇÃO",
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
-        ]
-    },
-    {
-        "polo": "ARACATI",
-        "lat": -4.56,
-        "lng": -37.77,
-        "cursos": [
-            "AUDITORIA E CONTROLE INTERNO",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
-        ]
-    },
-    {
-        "polo": "ARACOIABA",
-        "lat": -4.37,
-        "lng": -38.81,
-        "cursos": [
-            "EDUCAÇÃO FÍSICA",
-            "HISTÓRIA",
-            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
-        ]
-    },
-    {
-        "polo": "ASSARÉ",
-        "lat": -6.87,
-        "lng": -39.87,
-        "cursos": [
-            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
-        ]
-    },
-    {
-        "polo": "BATURITÉ",
-        "lat": -4.33,
-        "lng": -38.88,
-        "cursos": [
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS"
-        ]
-    },
-    {
-        "polo": "BEBERIBE",
-        "lat": -4.18,
-        "lng": -38.13,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
-            "CIÊNCIAS BIOLÓGICAS",
-            "CIÊNCIAS CONTÁBEIS",
-            "COMPUTAÇÃO",
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "EDUCAÇÃO FÍSICA",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "HISTÓRIA",
-            "PEDAGOGIA",
-            "QUÍMICA",
-            "TECNÓLOGO EM TURISMO COMUNITÁRIO",
-            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
-        ]
-    },
-    {
-        "polo": "BOA VIAGEM",
-        "lat": -5.12,
-        "lng": -39.73,
-        "cursos": [
-            "ENSINO DE MATEMÁTICA",
-            "GESTÃO PÚBLICA MUNICIPAL"
-        ]
-    },
-    {
-        "polo": "CAMOCIM",
-        "lat": -2.9,
-        "lng": -40.84,
-        "cursos": [
-            "CIÊNCIAS BIOLÓGICAS",
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "QUÍMICA",
-            "TECNÓLOGO EM TURISMO COMUNITÁRIO"
-        ]
-    },
-    {
-        "polo": "CAMPOS SALES",
-        "lat": -7.07,
-        "lng": -40.37,
-        "cursos": [
-            "ENSINO DE MATEMÁTICA"
-        ]
-    },
-    {
-        "polo": "CANINDÉ",
-        "lat": -4.35,
-        "lng": -39.31,
-        "cursos": [
-            "EDUCAÇÃO E DIVERSIDADES",
-            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
-            "HISTÓRIA",
-            "QUÍMICA",
-            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
-        ]
-    },
-    {
-        "polo": "CASCAVEL",
-        "lat": -4.13,
-        "lng": -38.24,
-        "cursos": [
-            "HISTÓRIA",
-            "LETRAS/LITERATURA",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "CAUCAIA - ARATURI",
-        "lat": -3.7684372,
-        "lng": -38.6383563,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA", 
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS", 
-            "CIÊNCIAS BIOLÓGICAS", 
-            "EDUCAÇÃO FÍSICA", 
-            "HISTÓRIA", 
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "CAUCAIA - ITAMBÉ",
-        "lat": -3.7319255,
-        "lng": -38.6524174,
-        "cursos": [
-            "CIÊNCIAS CONTÁBEIS", 
-            "COMPUTAÇÃO", 
-            "GESTÃO PÚBLICA MUNICIPAL", 
-            "LETRAS/PORTUGUÊS"
-        ]
-    },
-    {
-        "polo": "CAUCAIA - NOVO PABUSSU",
-        "lat": -3.7296388,
-        "lng": -38.6666252,
-        "cursos": [
-            "CIÊNCIAS BIOLÓGICAS", 
-            "COMPUTAÇÃO", 
-            "EDUCAÇÃO E DIVERSIDADES", 
-            "GOVERNANÇA GLOBAL", 
-            "DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", 
-            "QUÍMICA"
-        ]
-    },
-    {
-        "polo": "CRATEÚS",
-        "lat": -5.17,
-        "lng": -40.67,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "AUDITORIA E CONTROLE INTERNO",
-            "GESTÃO ESCOLAR - PNAP"
-        ]
-    },
-    {
-        "polo": "FORTALEZA",
-        "lat": -3.72,
-        "lng": -38.52,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "ARTES VISUAIS",
-            "CIÊNCIA É 10! - PROJETO NACIONAL",
-            "CIÊNCIAS BIOLÓGICAS",
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "EDUCAÇÃO FÍSICA",
-            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
-            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
-            "GESTÃO PÚBLICA MUNICIPAL",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS"
-        ]
-    },
-    {
-        "polo": "GRANJA",
-        "lat": -3.12,
-        "lng": -40.82,
-        "cursos": [
-            "GESTÃO PÚBLICA MUNICIPAL"
-        ]
-    },
-    {
-        "polo": "HORIZONTE",
-        "lat": -4.09,
-        "lng": -38.49,
-        "cursos": [
-            "CONTROLADORIA PÚBLICA",
-            "GEOGRAFIA",
-            "HISTÓRIA"
-        ]
-    },
-    {
-        "polo": "ICÓ",
-        "lat": -6.4,
-        "lng": -38.86,
-        "cursos": [
-            "GEOGRAFIA",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "IGUATU",
-        "lat": -6.36,
-        "lng": -39.29,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS CONTÁBEIS",
-            "COMPUTAÇÃO",
-            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
-            "GEOGRAFIA",
-            "HISTÓRIA",
-            "LETRAS/LITERATURA",
-            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
-        ]
-    },
-    {
-        "polo": "ITAPIPOCA",
-        "lat": -3.49,
-        "lng": -39.58,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS CONTÁBEIS",
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
-            "GESTÃO EM SAÚDE",
-            "GESTÃO ESCOLAR - PNAP",
-            "GESTÃO PÚBLICA - PNAP",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS"
-        ]
-    },
-    {
-        "polo": "ITAREMA",
-        "lat": -2.92,
-        "lng": -39.91,
-        "cursos": [
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS",
-            "HISTÓRIA"
-        ]
-    },
-    {
-        "polo": "JAGUARIBE",
-        "lat": -5.89,
-        "lng": -38.62,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "ARTES VISUAIS",
-            "AUDITORIA E CONTROLE INTERNO",
-            "CIÊNCIAS BIOLÓGICAS",
-            "CIÊNCIAS CONTÁBEIS",
-            "COMPUTAÇÃO",
-            "LETRAS/PORTUGUÊS",
-            "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"
-        ]
-    },
-    {
-        "polo": "JUAZEIRO DO NORTE",
-        "lat": -7.21,
-        "lng": -39.31,
-        "cursos": [
-            "CONTABILIDADE PÚBLICA",
-            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
-            "GESTÃO PÚBLICA MUNICIPAL"
-        ]
-    },
-    {
-        "polo": "LAVRAS DA MANGABEIRA",
-        "lat": -6.75,
-        "lng": -38.96,
-        "cursos": [
-            "GESTÃO EM SAÚDE"
-        ]
-    },
-    {
-        "polo": "LIMOEIRO DO NORTE",
-        "lat": -5.14,
-        "lng": -38.09,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS CONTÁBEIS",
-            "COMPUTAÇÃO",
-            "ENSINO DE MATEMÁTICA",
-            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
-        ]
-    },
-    {
-        "polo": "MADALENA",
-        "lat": -4.85,
-        "lng": -39.67,
-        "cursos": [
-            "GEOGRAFIA",
-            "MATEMÁTICA"
-        ]
-    },
-    {
-        "polo": "MARACANAÚ",
-        "lat": -3.87,
-        "lng": -38.62,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "ARTES VISUAIS",
-            "CONTROLADORIA PÚBLICA",
-            "EDUCAÇÃO E DIVERSIDADES",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "MARANGUAPE",
-        "lat": -3.89,
-        "lng": -38.68,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS BIOLÓGICAS",
-            "CONTABILIDADE PÚBLICA",
-            "EDUCAÇÃO FÍSICA",
-            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
-            "GESTÃO ESCOLAR - PNAP",
-            "HISTÓRIA"
-        ]
-    },
-    {
-        "polo": "MAURITI",
-        "lat": -7.39,
-        "lng": -38.77,
-        "cursos": [
-            "ENSINO DE MATEMÁTICA",
-            "MATEMÁTICA",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "MERUOCA",
-        "lat": -3.54,
-        "lng": -40.45,
-        "cursos": [
-            "CONTROLADORIA PÚBLICA",
-            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
-        ]
-    },
-    {
-        "polo": "MOMBAÇA",
-        "lat": -5.74,
-        "lng": -39.62,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "AUDITORIA E CONTROLE INTERNO",
-            "GESTÃO PÚBLICA - PNAP"
-        ]
-    },
-    {
-        "polo": "MORADA NOVA",
-        "lat": -5.1,
-        "lng": -38.37,
-        "cursos": [
-            "MATEMÁTICA",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "NOVA RUSSAS",
-        "lat": -4.7,
-        "lng": -40.56,
-        "cursos": [
-            "LETRAS/LITERATURA"
-        ]
-    },
-    {
-        "polo": "ORÓS",
-        "lat": -6.24,
-        "lng": -38.91,
-        "cursos": [
-            "COMPUTAÇÃO",
-            "CONTABILIDADE PÚBLICA",
-            "ENSINO DE MATEMÁTICA",
-            "HISTÓRIA",
-            "QUÍMICA"
-        ]
-    },
-    {
-        "polo": "PACOTI",
-        "lat": -4.22,
-        "lng": -38.92,
-        "cursos": [
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
-            "CONTABILIDADE PÚBLICA",
-            "GESTÃO ESCOLAR - PNAP",
-            "MATEMÁTICA",
-            "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"
-        ]
-    },
-    {
-        "polo": "PARAMBU",
-        "lat": -6.21,
-        "lng": -40.69,
-        "cursos": [
-            "ALFABETIZAÇÃO E MULTILETRAMENTOS",
-            "CIÊNCIA É 10! - PROJETO NACIONAL",
-            "CONTROLADORIA PÚBLICA",
-            "MATEMÁTICA"
-        ]
-    },
-    {
-        "polo": "PEDRA BRANCA",
-        "lat": -5.45,
-        "lng": -39.71,
-        "cursos": [
-            "CIÊNCIA É 10! - PROJETO NACIONAL",
-            "CONTROLADORIA PÚBLICA",
-            "GESTÃO ESCOLAR - PNAP",
-            "PEDAGOGIA"
-        ]
-    },
-    {
-        "polo": "PIQUET CARNEIRO",
-        "lat": -5.31,
-        "lng": -39.4,
-        "cursos": [
-            "CIÊNCIA É 10! - PROJETO NACIONAL",
-            "CONTABILIDADE PÚBLICA"
-        ]
-    },
-    {
-        "polo": "PIRES FERREIRA",
-        "lat": -4.25,
-        "lng": -40.63,
-        "cursos": [
-            "LETRAS/LITERATURA"
-        ]
-    },
-    {
-        "polo": "QUIXADÁ",
-        "lat": -4.97,
-        "lng": -39.01,
-        "cursos": [
-            "ARTES VISUAIS",
-            "EDUCAÇÃO FÍSICA",
-            "EDUCAÇÃO FÍSICA",
-            "GESTÃO PÚBLICA - PNAP"
-        ]
-    },
-    {
-        "polo": "QUIXERAMOBIM",
-        "lat": -5.19,
-        "lng": -39.29,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS BIOLÓGICAS",
-            "COMPUTAÇÃO",
-            "EDUCAÇÃO FÍSICA",
-            "GESTÃO EM SAÚDE"
-        ]
-    },
-    {
-        "polo": "RUSSAS",
-        "lat": -4.94,
-        "lng": -38.13,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS BIOLÓGICAS",
-            "CIÊNCIAS CONTÁBEIS",
-            "EDUCAÇÃO E DIVERSIDADES",
-            "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA",
-            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM",
-            "GESTÃO EM SAÚDE",
-            "GESTÃO PÚBLICA - PNAP"
-        ]
-    },
-    {
-        "polo": "SANTA QUITÉRIA",
-        "lat": -4.33,
-        "lng": -40.15,
-        "cursos": [
-            "EDUCAÇÃO FÍSICA",
-            "GEOGRAFIA"
-        ]
-    },
-    {
-        "polo": "SOBRAL",
-        "lat": -3.68,
-        "lng": -40.34,
-        "cursos": [
-            "CIÊNCIAS BIOLÓGICAS",
-            "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO – GEPEM"
-        ]
-    },
-    {
-        "polo": "SÃO GONÇALO DO AMARANTE",
-        "lat": -3.6,
-        "lng": -38.96,
-        "cursos": [
-            "CULTURA OCEÂNICA E SUSTENTABILIDADE",
-            "GEOGRAFIA",
-            "GESTÃO PÚBLICA MUNICIPAL",
-            "HISTÓRIA"
-        ]
-    },
-    {
-        "polo": "TABULEIRO DO NORTE",
-        "lat": -5.25,
-        "lng": -38.12,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "GESTÃO ESCOLAR - PNAP",
-            "GESTÃO PÚBLICA - PNAP"
-        ]
-    },
-    {
-        "polo": "TAUÁ",
-        "lat": -5.97,
-        "lng": -40.29,
-        "cursos": [
-            "ADMINISTRAÇÃO PÚBLICA",
-            "CIÊNCIAS CONTÁBEIS",
-            "LETRAS/PORTUGUÊS"
-        ]
-    },
-    {
-        "polo": "TIANGUA",
-        "lat": -3.73,
-        "lng": -40.99,
-        "cursos": [
-            "LETRAS/PORTUGUÊS",
-            "MATEMÁTICA"
-        ]
-    },
-    {
-        "polo": "TRAIRI",
-        "lat": -3.27,
-        "lng": -39.26,
-        "cursos": [
-            "AUDITORIA E CONTROLE INTERNO"
-        ]
-    },
-    {
-        "polo": "UBAJARA",
-        "lat": -3.85,
-        "lng": -40.92,
-        "cursos": [
-            "EDUCAÇÃO FÍSICA"
-        ]
-    }
-];
+        /* =========================================
+           LÓGICA DE NAVEGAÇÃO ENTRE ABAS
+           ========================================= */
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const views = document.querySelectorAll('.view-container');
 
-        const map = L.map('map', { zoomControl: false }).setView([-5.0, -39.5], 7.5);
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                
+                // Atualizar Botões
+                toggleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Atualizar Vistas
+                views.forEach(view => {
+                    view.classList.remove('active');
+                    if(view.id === targetId) {
+                        view.classList.add('active');
+                        // Se mudar para o mapa, garantir que renderiza corretamente
+                        if(targetId === 'view-map') {
+                            setTimeout(() => { map.invalidateSize(); }, 100);
+                        }
+                    }
+                });
+            });
+        });
+
+        /* =========================================
+           DADOS E LÓGICA DO MAPA
+           ========================================= */
+        const polosUECE = [
+            { "polo": "AMONTADA", "lat": -3.36, "lng": -39.83, "cursos": ["COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "EDUCAÇÃO E DIVERSIDADES", "FÍSICA", "GEOGRAFIA", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "QUÍMICA", "TECNÓLOGO EM TURISMO COMUNITÁRIO"] },
+            { "polo": "AQUIRAZ", "lat": -3.9, "lng": -38.39, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ALFABETIZAÇÃO E MULTILETRAMENTOS", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "GEOGRAFIA", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "TECNÓLOGO EM TURISMO COMUNITÁRIO"] },
+            { "polo": "ARACATI", "lat": -4.56, "lng": -37.77, "cursos": ["AUDITORIA E CONTROLE INTERNO", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "TECNÓLOGO EM TURISMO COMUNITÁRIO"] },
+            { "polo": "ARACOIABA", "lat": -4.37, "lng": -38.81, "cursos": ["CIÊNCIAS BIOLÓGICAS", "EDUCAÇÃO FÍSICA", "HISTÓRIA", "LETRAS/PORTUGUÊS", "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"] },
+            { "polo": "ASSARÉ", "lat": -6.87, "lng": -39.87, "cursos": ["TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"] },
+            { "polo": "BATURITÉ", "lat": -4.33, "lng": -38.88, "cursos": ["ALFABETIZAÇÃO E MULTILETRAMENTOS", "HISTÓRIA", "LETRAS/PORTUGUÊS", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "BEBERIBE", "lat": -4.18, "lng": -38.13, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ALFABETIZAÇÃO E MULTILETRAMENTOS", "CIÊNCIAS BIOLÓGICAS", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "EDUCAÇÃO FÍSICA", "GEOGRAFIA", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA", "PEDAGOGIA", "QUÍMICA", "TECNÓLOGO EM TURISMO COMUNITÁRIO", "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"] },
+            { "polo": "BOA VIAGEM", "lat": -5.12, "lng": -39.73, "cursos": ["COMPUTAÇÃO", "ENSINO DE MATEMÁTICA", "GEOGRAFIA", "GESTÃO PÚBLICA MUNICIPAL", "HISTÓRIA", "LETRAS/PORTUGUÊS", "PEDAGOGIA"] },
+            { "polo": "BREJO SANTO", "lat": -7.53, "lng": -38.98, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "CIÊNCIAS CONTÁBEIS", "FÍSICA", "PEDAGOGIA"] },
+            { "polo": "CAMOCIM", "lat": -2.9, "lng": -40.84, "cursos": ["CIÊNCIAS BIOLÓGICAS", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA", "QUÍMICA", "TECNÓLOGO EM TURISMO COMUNITÁRIO"] },
+            { "polo": "CAMPOS SALES", "lat": -7.07, "lng": -40.37, "cursos": ["ENSINO DE MATEMÁTICA", "GEOGRAFIA", "QUÍMICA"] },
+            { "polo": "CANINDÉ", "lat": -4.35, "lng": -39.31, "cursos": ["CIÊNCIAS BIOLÓGICAS", "EDUCAÇÃO E DIVERSIDADES", "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA", "FÍSICA", "GEOGRAFIA", "HISTÓRIA", "MATEMÁTICA", "QUÍMICA", "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"] },
+            { "polo": "CASCAVEL", "lat": -4.13, "lng": -38.24, "cursos": ["GEOGRAFIA", "HISTÓRIA", "LETRAS/LITERATURA", "LETRAS/PORTUGUÊS", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "CAUCAIA - ARATURI", "lat": -3.7684, "lng": -38.6383, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "GESTÃO ESCOLAR - PNAP", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "CAUCAIA - ITAMBÉ", "lat": -3.7319, "lng": -38.6524, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIA É 10! - PROJETO NACIONAL", "EDUCAÇÃO FÍSICA", "GEOGRAFIA"] },
+            { "polo": "CAUCAIA - NOVO PABUSSU", "lat": -3.7296, "lng": -38.6666, "cursos": ["CIÊNCIAS BIOLÓGICAS", "COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "EDUCAÇÃO E DIVERSIDADES", "EDUCAÇÃO FÍSICA", "GESTÃO EM SAÚDE", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA", "QUÍMICA"] },
+            { "polo": "CRATEÚS", "lat": -5.17, "lng": -40.67, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "AUDITORIA E CONTROLE INTERNO", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "GEOGRAFIA", "GESTÃO ESCOLAR - PNAP"] },
+            { "polo": "FORTALEZA", "lat": -3.72, "lng": -38.52, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "CIÊNCIA É 10! - PROJETO NACIONAL", "CIÊNCIAS BIOLÓGICAS", "COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "EDUCAÇÃO FÍSICA", "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA", "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO - GEPEM", "GESTÃO PÚBLICA MUNICIPAL", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA", "MATEMÁTICA"] },
+            { "polo": "GRANJA", "lat": -3.12, "lng": -40.82, "cursos": ["GESTÃO PÚBLICA MUNICIPAL"] },
+            { "polo": "HORIZONTE", "lat": -4.09, "lng": -38.49, "cursos": ["CONTROLADORIA PÚBLICA", "GEOGRAFIA", "HISTÓRIA", "MATEMÁTICA"] },
+            { "polo": "ICÓ", "lat": -6.40, "lng": -38.86, "cursos": ["GEOGRAFIA", "PEDAGOGIA"] },
+            { "polo": "IGUATU", "lat": -6.36, "lng": -39.29, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA", "GEOGRAFIA", "HISTÓRIA", "LETRAS/LITERATURA", "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"] },
+            { "polo": "ITAPIPOCA", "lat": -3.49, "lng": -39.58, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "GEOGRAFIA", "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO - GEPEM", "GESTÃO EM SAÚDE", "GESTÃO ESCOLAR - PNAP", "GESTÃO PÚBLICA - PNAP", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA"] },
+            { "polo": "ITAREMA", "lat": -2.92, "lng": -39.91, "cursos": ["CULTURA OCEÂNICA E SUSTENTABILIDADE", "GEOGRAFIA", "GOVERNANÇA GLOBAL, DESENVOLVIMENTO SUSTENTÁVEL E COMUNIDADES TRADICIONAIS", "HISTÓRIA", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "JAGUARIBE", "lat": -5.89, "lng": -38.62, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "AUDITORIA E CONTROLE INTERNO", "CIÊNCIAS BIOLÓGICAS", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "EDUCAÇÃO FÍSICA", "HISTÓRIA", "LETRAS/PORTUGUÊS", "MATEMÁTICA", "PEDAGOGIA", "TRADUÇÃO AUDIOVISUAL ACESSÍVEL/ LEGENDAGEM P/SURDOS E ENSURDECIDOS"] },
+            { "polo": "JUAZEIRO DO NORTE", "lat": -7.21, "lng": -39.31, "cursos": ["CONTABILIDADE PÚBLICA", "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO - GEPEM", "GESTÃO PÚBLICA MUNICIPAL"] },
+            { "polo": "LAVRAS DA MANGABEIRA", "lat": -6.75, "lng": -38.96, "cursos": ["CIÊNCIAS CONTÁBEIS", "GESTÃO EM SAÚDE", "HISTÓRIA", "MATEMÁTICA"] },
+            { "polo": "LIMOEIRO DO NORTE", "lat": -5.14, "lng": -38.09, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "EDUCAÇÃO FÍSICA", "ENSINO DE MATEMÁTICA", "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"] },
+            { "polo": "MADALENA", "lat": -4.85, "lng": -39.67, "cursos": ["GEOGRAFIA", "MATEMÁTICA"] },
+            { "polo": "MARACANAÚ", "lat": -3.87, "lng": -38.62, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "CIÊNCIAS BIOLÓGICAS", "CONTROLADORIA PÚBLICA", "EDUCAÇÃO E DIVERSIDADES", "FÍSICA", "MATEMÁTICA", "PEDAGOGIA", "QUÍMICA"] },
+            { "polo": "MARANGUAPE", "lat": -3.89, "lng": -38.68, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS BIOLÓGICAS", "CONTABILIDADE PÚBLICA", "EDUCAÇÃO FÍSICA", "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA", "GESTÃO ESCOLAR - PNAP", "HISTÓRIA", "PEDAGOGIA"] },
+            { "polo": "MAURITI", "lat": -7.39, "lng": -38.77, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ENSINO DE MATEMÁTICA", "GEOGRAFIA", "HISTÓRIA", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "MERUOCA", "lat": -3.54, "lng": -40.45, "cursos": ["CONTROLADORIA PÚBLICA", "GEOGRAFIA", "HISTÓRIA", "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"] },
+            { "polo": "MOMBAÇA", "lat": -5.74, "lng": -39.62, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "AUDITORIA E CONTROLE INTERNO", "GEOGRAFIA", "GESTÃO PÚBLICA - PNAP"] },
+            { "polo": "MORADA NOVA", "lat": -5.10, "lng": -38.37, "cursos": ["CIÊNCIAS CONTÁBEIS", "HISTÓRIA", "MATEMÁTICA", "PEDAGOGIA"] },
+            { "polo": "NOVA RUSSAS", "lat": -4.7, "lng": -40.56, "cursos": ["GEOGRAFIA", "LETRAS/LITERATURA"] },
+            { "polo": "ORÓS", "lat": -6.24, "lng": -38.91, "cursos": ["COMPUTAÇÃO", "CONTABILIDADE PÚBLICA", "EDUCAÇÃO FÍSICA", "ENSINO DE MATEMÁTICA", "GEOGRAFIA", "HISTÓRIA", "QUÍMICA"] },
+            { "polo": "PACOTI", "lat": -4.22, "lng": -38.92, "cursos": ["ALFABETIZAÇÃO E MULTILETRAMENTOS", "CONTABILIDADE PÚBLICA", "GESTÃO ESCOLAR - PNAP", "MATEMÁTICA", "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"] },
+            { "polo": "PARAMBU", "lat": -6.21, "lng": -40.69, "cursos": ["AUDITORIA E CONTROLE INTERNO", "CIÊNCIA É 10! - PROJETO NACIONAL", "CIÊNCIAS CONTÁBEIS", "CONTROLADORIA PÚBLICA", "HISTÓRIA", "MATEMÁTICA"] },
+            { "polo": "PEDRA BRANCA", "lat": -5.45, "lng": -39.71, "cursos": ["CIÊNCIA É 10! - PROJETO NACIONAL", "CIÊNCIAS CONTÁBEIS", "CONTROLADORIA PÚBLICA", "GESTÃO ESCOLAR - PNAP", "HISTÓRIA", "PEDAGOGIA"] },
+            { "polo": "PIQUET CARNEIRO", "lat": -5.31, "lng": -39.4, "cursos": ["CIÊNCIA É 10! - PROJETO NACIONAL", "CONTABILIDADE PÚBLICA", "GEOGRAFIA", "PEDAGOGIA"] },
+            { "polo": "PIRES FERREIRA", "lat": -4.25, "lng": -40.63, "cursos": ["LETRAS/LITERATURA"] },
+            { "polo": "QUITERIANÓPOLIS", "lat": -5.84, "lng": -40.26, "cursos": ["GEOGRAFIA", "HISTÓRIA", "QUÍMICA"] },
+            { "polo": "QUIXADÁ", "lat": -4.97, "lng": -39.01, "cursos": ["ARTES VISUAIS", "EDUCAÇÃO FÍSICA", "GESTÃO PÚBLICA - PNAP"] },
+            { "polo": "QUIXERAMOBIM", "lat": -5.19, "lng": -39.29, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "ARTES VISUAIS", "CIÊNCIAS BIOLÓGICAS", "CIÊNCIAS CONTÁBEIS", "COMPUTAÇÃO", "EDUCAÇÃO FÍSICA", "GEOGRAFIA", "GESTÃO EM SAÚDE", "HISTÓRIA", "PEDAGOGIA", "QUÍMICA"] },
+            { "polo": "RUSSAS", "lat": -4.94, "lng": -38.13, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS BIOLÓGICAS", "CIÊNCIAS CONTÁBEIS", "EDUCAÇÃO E DIVERSIDADES", "EDUCAÇÃO FÍSICA E ESPORTE PARA PESSOAS COM DEFICIÊNCIA", "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO - GEPEM", "GESTÃO EM SAÚDE", "GESTÃO PÚBLICA - PNAP", "HISTÓRIA", "PEDAGOGIA"] },
+            { "polo": "SANTA QUITÉRIA", "lat": -4.33, "lng": -40.15, "cursos": ["EDUCAÇÃO FÍSICA", "GEOGRAFIA", "QUÍMICA"] },
+            { "polo": "SÃO GONÇALO DO AMARANTE", "lat": -3.6, "lng": -38.96, "cursos": ["CIÊNCIAS BIOLÓGICAS", "CULTURA OCEÂNICA E SUSTENTABILIDADE", "EDUCAÇÃO FÍSICA", "GEOGRAFIA", "GESTÃO PÚBLICA MUNICIPAL", "HISTÓRIA", "LETRAS/PORTUGUÊS", "QUÍMICA"] },
+            { "polo": "SOBRAL", "lat": -3.68, "lng": -40.34, "cursos": ["ARTES VISUAIS", "CIÊNCIAS BIOLÓGICAS", "GESTÃO DA ESCOLA PÚBLICA DE ENSINO MÉDIO - GEPEM", "QUÍMICA"] },
+            { "polo": "TABULEIRO DO NORTE", "lat": -5.25, "lng": -38.12, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "GESTÃO ESCOLAR - PNAP", "GESTÃO PÚBLICA - PNAP", "PEDAGOGIA"] },
+            { "polo": "TIANGUÁ", "lat": -3.73, "lng": -40.99, "cursos": ["LETRAS/LITERATURA", "LETRAS/PORTUGUÊS", "MATEMÁTICA", "PEDAGOGIA", "TURISMO COM HABILITAÇÃO EM BASE COMUNITÁRIA"] },
+            { "polo": "TRAIRI", "lat": -3.27, "lng": -39.26, "cursos": ["AUDITORIA E CONTROLE INTERNO"] },
+            { "polo": "UBAJARA", "lat": -3.85, "lng": -40.92, "cursos": ["EDUCAÇÃO FÍSICA"] },
+            { "polo": "TAUÁ", "lat": -5.97, "lng": -40.29, "cursos": ["ADMINISTRAÇÃO PÚBLICA", "CIÊNCIAS CONTÁBEIS", "HISTÓRIA", "LETRAS/PORTUGUÊS"] }
+        ];
+
+        const map = L.map('map', { zoomControl: false }).setView([-5.0, -39.5], 7);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         const poloListContainer = document.getElementById('polo-list');
@@ -943,20 +694,20 @@
 
         function createPopupContent(polo) {
             let coursesList = polo.cursos.map(curso => `<li>${curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase()}</li>`).join('');
-            return `<div class="popup-title">${polo.polo}</div><div class="popup-courses-label">Cursos oferecidos:</div><ul class="popup-courses">${coursesList}</ul>`;
+            return `<div class="popup-title">${polo.polo}</div><ul class="popup-courses">${coursesList}</ul>`;
         }
-        
+
         function renderAccordion(polos) {
             poloListContainer.innerHTML = '';
             polos.sort((a, b) => a.polo.localeCompare(b.polo));
-            
-            let animationDelay = 0;
+
             polos.forEach(polo => {
                 const customIcon = L.divIcon({
                     className: 'custom-marker',
                     html: `<div class="marker-pin"></div>`,
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 30]
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28],
+                    popupAnchor: [0, -28]
                 });
 
                 if (!markers[polo.polo]) {
@@ -969,14 +720,13 @@
                 const accordionItem = document.createElement('div');
                 accordionItem.className = 'accordion-item';
                 accordionItem.setAttribute('data-polo', polo.polo);
-                accordionItem.style.animationDelay = `${animationDelay}s`;
-                animationDelay += 0.05;
 
                 const accordionHeader = document.createElement('div');
                 accordionHeader.className = 'accordion-header';
                 const courseText = polo.cursos.length === 1 ? 'curso' : 'cursos';
+                
                 accordionHeader.innerHTML = `
-                    <div class="title-container">
+                    <div class="accordion-title-group">
                         <span class="accordion-title">${polo.polo}</span>
                         <span class="accordion-count">${polo.cursos.length} ${courseText}</span>
                     </div>
@@ -991,7 +741,7 @@
                 
                 const courseList = document.createElement('ul');
                 courseList.className = 'course-list';
-                courseList.innerHTML = polo.cursos.map((curso, index) => `<li style="animation-delay: ${index * 0.05}s">${curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase()}</li>`).join('');
+                courseList.innerHTML = polo.cursos.map((curso) => `<li>${curso.charAt(0).toUpperCase() + curso.slice(1).toLowerCase()}</li>`).join('');
                 
                 accordionBody.appendChild(courseList);
                 accordionContent.appendChild(accordionBody);
@@ -1019,7 +769,7 @@
                 accordionHeader.addEventListener('click', () => {
                     activatePolo();
                     marker.openPopup();
-                    map.flyTo([polo.lat, polo.lng], 11);
+                    map.flyTo([polo.lat, polo.lng], 9);
                 });
 
                 marker.off('click').on('click', () => {
@@ -1027,7 +777,6 @@
                 });
             });
         }
-
 
         function toggleAccordion(item, forceState) {
             const content = item.querySelector('.accordion-content');
@@ -1050,9 +799,15 @@
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             const filteredPolos = polosUECE.filter(polo => polo.polo.toLowerCase().includes(searchTerm));
+            
+            // Ocultar marcadores que não correspondem à pesquisa
+            Object.values(markers).forEach(m => map.removeLayer(m));
+            filteredPolos.forEach(p => map.addLayer(markers[p.polo]));
+            
             renderAccordion(filteredPolos);
         });
 
+        // Inicializar aplicação
         renderAccordion(polosUECE);
     </script>
 </body>
